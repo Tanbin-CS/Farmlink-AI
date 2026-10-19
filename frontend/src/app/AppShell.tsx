@@ -1,5 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
-import { NavLink, Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink, Link, useLocation, useOutlet } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
 import {
   Activity,
   BarChart3,
@@ -24,6 +25,10 @@ import { CopilotPanel } from '@/features/copilot/CopilotPanel';
 import { useJourney } from '@/lib/journey';
 import { cn } from '@/lib/utils';
 import { DisplayCurrencySelect } from './DisplayCurrencySelect';
+import { CommandButton } from './CommandPalette';
+import { useLenis } from './SmoothScroll';
+import { PageTransition } from '@/components/motion';
+import { WelcomeTour } from '@/features/onboarding/WelcomeTour';
 
 const STEP_ICON: Record<string, typeof Home> = {
   profile: Building2,
@@ -116,7 +121,9 @@ const MOBILE_TABS = [
   { to: '/applications', label: 'Apply', icon: FileText },
 ];
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell() {
+  const outlet = useOutlet();
+  const lenis = useLenis();
   const { client, snapshot } = useSandbox();
   const { prefs, update } = usePreferences();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -125,8 +132,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const copilotOpen = prefs.copilotOpen;
 
   useEffect(() => {
-    window.scrollTo({ top: 0 });
-  }, [location.pathname]);
+    if (lenis) lenis.scrollTo(0, { immediate: true });
+    else window.scrollTo({ top: 0 });
+  }, [location.pathname, lenis]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -158,6 +166,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {snapshot?.workspace ? <span className="rounded-md bg-stone-100 px-1.5 py-0.5 text-[11px] font-semibold text-stone-600">{snapshot.workspace.currency}</span> : null}
               </div>
               <div className="ml-auto flex items-center gap-2">
+                <CommandButton />
                 <DisplayCurrencySelect className="hidden sm:flex" />
                 <button
                   className="hidden items-center gap-2 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 shadow-xs hover:bg-stone-50 xl:flex"
@@ -204,7 +213,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <div className="flex flex-1 gap-6 px-4 pb-24 pt-6 lg:px-6 lg:pb-10">
             <main id="main" className={cn('mx-auto w-full min-w-0 max-w-6xl flex-1', onCopilotRoute && 'hidden')}>
-              {children}
+              <AnimatePresence mode="wait" initial={false}>
+                <PageTransition key={location.pathname} id={location.pathname}>
+                  {outlet}
+                </PageTransition>
+              </AnimatePresence>
             </main>
             <aside
               aria-label="Copilot"
@@ -219,6 +232,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
+      <WelcomeTour />
       {/* Mobile bottom tabs */}
       <nav aria-label="Primary" className="no-print fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 bg-white/95 backdrop-blur lg:hidden">
         <ul className="grid grid-cols-5">
@@ -230,8 +244,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               >
                 {({ isActive }) => (
                   <>
-                    <span className={cn('grid h-7 w-12 place-items-center rounded-full transition-colors', isActive && 'bg-brand-50')}>
-                      <t.icon className="size-5" aria-hidden />
+                    <span className="relative grid h-7 w-12 place-items-center">
+                      {isActive ? <motion.span layoutId="tab-pill" className="absolute inset-0 rounded-full bg-brand-50" transition={{ type: 'spring', stiffness: 420, damping: 34 }} /> : null}
+                      <t.icon className="relative size-5" aria-hidden />
                     </span>
                     {t.label}
                   </>

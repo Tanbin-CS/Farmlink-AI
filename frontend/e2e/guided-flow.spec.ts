@@ -1,5 +1,12 @@
 import { expect, test } from '@playwright/test';
 
+// The welcome tour is covered by its own test; other flows start with it dismissed.
+test.beforeEach(async ({ page }, info) => {
+  if (!info.title.includes('welcome tour')) {
+    await page.addInitScript(() => localStorage.setItem('farmlink.tour.seen.v1', '1'));
+  }
+});
+
 test('guided sandbox: demo → cash flow → financing → draft → confirm → receipt → evidence', async ({ page, isMobile }) => {
   await page.goto('./');
   await expect(page.getByText('Competition prototype. Sandbox only. No real loan, payment, or lender submission.').first()).toBeVisible();
@@ -78,4 +85,41 @@ test('what-if scenario changes the projected gap without changing records', asyn
   await expect(page.getByText('+BDT 129,750')).toBeVisible();
   await page.getByRole('button', { name: 'Reset scenario' }).click();
   await expect(page.getByText('What-if gap')).toHaveCount(0);
+});
+
+test('welcome tour explains the demo once, and the command palette navigates', async ({ page, isMobile }) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Try the demo' }).click();
+  const tour = page.getByRole('dialog');
+  await expect(tour.getByText('Meet the demo cooperative')).toBeVisible();
+  await tour.getByRole('button', { name: 'Next' }).click();
+  await expect(tour.getByText(/Cash runs out on/)).toBeVisible();
+  await tour.getByRole('button', { name: 'Next' }).click();
+  await tour.getByRole('button', { name: 'Next' }).click();
+  await tour.getByRole('button', { name: 'See the forecast' }).click();
+  await expect(page).toHaveURL(/#\/cashflow$/);
+  await page.reload();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  if (!isMobile) {
+    await page.keyboard.press('Control+k');
+    await page.getByPlaceholder(/Where do you want to go/).fill('financing');
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/#\/financing$/);
+  }
+});
+
+test('clicking the forecast chart shows that day in detail', async ({ page }) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Try the demo' }).click();
+  await page.goto('./#/cashflow');
+  await expect(page.getByText('Click any day on the chart')).toBeVisible();
+  const chart = page.locator('.recharts-wrapper').first();
+  await chart.scrollIntoViewIfNeeded();
+  const box = (await chart.boundingBox())!;
+  await page.mouse.move(box.x + box.width * 0.4, box.y + box.height * 0.5);
+  await page.mouse.move(box.x + box.width * 0.42, box.y + box.height * 0.5);
+  await page.mouse.click(box.x + box.width * 0.42, box.y + box.height * 0.5);
+  await expect(page.getByText('Selected day')).toBeVisible();
+  await page.getByRole('button', { name: 'Next day' }).click();
+  await expect(page.getByText('Selected day')).toBeVisible();
 });

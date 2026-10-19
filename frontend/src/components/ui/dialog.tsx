@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { pauseSmoothScroll } from '@/app/SmoothScroll';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -8,12 +9,17 @@ export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogClose = DialogPrimitive.Close;
 
 export function DialogContent({ className, children, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>) {
+  React.useEffect(() => {
+    pauseSmoothScroll(true);
+    return () => pauseSmoothScroll(false);
+  }, []);
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-stone-950/45 backdrop-blur-[2px] data-[state=open]:animate-[fadeIn_160ms_ease-out]" />
       <DialogPrimitive.Content
+        data-lenis-prevent
         className={cn(
-          'fixed left-1/2 top-1/2 z-50 grid max-h-[92vh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl border border-stone-200 bg-white p-6 shadow-xl',
+          'fixed left-1/2 top-1/2 z-50 grid max-h-[92vh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto overscroll-contain rounded-2xl border border-stone-200 bg-white p-6 shadow-2xl data-[state=open]:animate-[dialogIn_220ms_cubic-bezier(0.22,1,0.36,1)]',
           className,
         )}
         {...props}

@@ -26,6 +26,15 @@ Cooperatives buy seed, fertilizer, and labour weeks before harvest receipts arri
 - Every amount can also show an **approximate equivalent** in another currency, at an editable reference rate. The default is the Bangladesh Bank USD/BDT reference rate for 19 Oct 2026. This is for display only and never feeds a calculation.
 - Numbers use international grouping (1,234,567) by default, with lakh grouping (12,34,567) as an option.
 
+### Designed to be easy to use
+
+- **A guided five-step journey**: profile → records → forecast → financing → apply. The sidebar shows progress, and on mobile the steps become an app-style bottom tab bar.
+- **A welcome tour** the first time the demo loads. It tells the cooperative's story with live numbers and can be skipped.
+- **Command palette (Ctrl/⌘ K)** to jump to any page or run quick actions such as loading a demo or switching currency.
+- **Interactive forecast**: click any day on the chart to see the money moving that day. What-if sliders and presets overlay a scenario line.
+- **Plain-language glossary tooltips** on finance terms (funding gap, net cash, stress test, payload hash…).
+- **Motion that respects users:** Lenis smooth scrolling, page transitions, count-up figures, scroll reveals, and a small celebration when a sandbox submission is confirmed. All of it is disabled for users who prefer reduced motion.
+
 ### Two honest modes
 
 | Mode | Header | What runs |

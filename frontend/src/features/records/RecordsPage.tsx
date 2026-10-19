@@ -1,6 +1,7 @@
-import { useMemo, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Papa from 'papaparse';
-import { Download, FileUp, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Download, FileUp, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import {
   CSV_TEMPLATE,
   LIMITS,
@@ -23,7 +24,8 @@ import { Alert } from '@/components/ui/alert';
 import { Money, PageHeader, StatusBadge, TruthNote } from '@/components/common';
 import { useSandbox } from '@/state/SandboxProvider';
 import { RequireWorkspace } from '@/app/RequireWorkspace';
-import { downloadText, errorMessage } from '@/lib/utils';
+import { cn, downloadText, errorMessage } from '@/lib/utils';
+import { motion } from '@/components/motion';
 
 const CATEGORIES: CashEvent['category'][] = ['sales_receipt', 'input_cost', 'transport', 'operating_cost', 'debt_repayment', 'other'];
 
@@ -46,13 +48,33 @@ function RecordsInner() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [preview, setPreview] = useState<(CsvValidation & { headerIssues: string[]; fileName: string }) | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState('');
+  const [params, setParams] = useSearchParams();
+  useEffect(() => {
+    if (params.get('new') === '1') {
+      setEditing(null);
+      setEditorOpen(true);
+      setParams({}, { replace: true });
+    }
+  }, [params, setParams]);
+  const totals = useMemo(() => {
+    let inflow = 0n;
+    let outflow = 0n;
+    for (const e of events) {
+      if (e.status !== 'planned') continue;
+      if (e.direction === 'inflow') inflow += BigInt(e.amountMinor);
+      else outflow += BigInt(e.amountMinor);
+    }
+    return { inflow: inflow.toString(), outflow: outflow.toString() };
+  }, [events]);
 
   const filtered = useMemo(
     () =>
       [...events]
         .filter((e) => (status === 'all' || e.status === status) && (direction === 'all' || e.direction === direction) && (!from || e.date >= from) && (!to || e.date <= to))
+        .filter((e) => !query.trim() || `${e.id} ${e.description} ${e.sourceRef} ${e.category}`.toLowerCase().includes(query.trim().toLowerCase()))
         .sort((a, b) => (a.date === b.date ? a.id.localeCompare(b.id) : a.date.localeCompare(b.date))),
-    [events, status, direction, from, to],
+    [events, status, direction, from, to, query],
   );
 
   const onFile = (file: File) => {
@@ -75,6 +97,7 @@ function RecordsInner() {
   return (
     <div className="space-y-5">
       <PageHeader
+        eyebrow="Step 2 · Records"
         title="Cash records"
         description="Dated inflows and outflows. A settled event's date is when cash actually moved; a planned event's date is when it is expected."
         actions={
@@ -111,8 +134,33 @@ function RecordsInner() {
           </>
         }
       />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-stone-200/80">
+          <div className="text-xs font-medium text-stone-500">Records</div>
+          <div className="mt-1 text-2xl font-semibold">{events.length}</div>
+        </div>
+        <div className="rounded-2xl bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-emerald-200">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-stone-500">
+            <ArrowDownRight className="size-3.5 text-emerald-600" aria-hidden /> Planned money in
+          </div>
+          <Money value={totals.inflow} decimals={false} className="mt-1 block text-2xl font-semibold" />
+        </div>
+        <div className="rounded-2xl bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-red-200">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-stone-500">
+            <ArrowUpRight className="size-3.5 text-red-600" aria-hidden /> Planned money out
+          </div>
+          <Money value={totals.outflow} decimals={false} className="mt-1 block text-2xl font-semibold" />
+        </div>
+      </div>
       <Card>
-        <CardContent className="grid gap-3 pt-5 sm:grid-cols-4">
+        <CardContent className="grid gap-3 pt-5 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="sm:col-span-2 lg:col-span-1">
+            <Label htmlFor="f-q">Search</Label>
+            <div className="relative mt-1">
+              <Search className="pointer-events-none absolute left-2.5 top-2.5 size-4 text-stone-400" aria-hidden />
+              <Input id="f-q" className="pl-8" placeholder="seed, wages, PO…" value={query} onChange={(e) => setQuery(e.target.value)} />
+            </div>
+          </div>
           <div>
             <Label htmlFor="f-status">Status</Label>
             <Select id="f-status" value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -140,7 +188,36 @@ function RecordsInner() {
           </div>
         </CardContent>
       </Card>
-      <Card>
+      <div className="space-y-2 md:hidden">
+        {filtered.map((e, i) => (
+          <motion.div
+            key={e.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: Math.min(i, 8) * 0.03 }}
+            className={cn('flex items-center gap-3 rounded-2xl bg-white p-3 shadow-[var(--shadow-card)] ring-1 ring-stone-200/80', e.status === 'cancelled' && 'opacity-60')}
+          >
+            <span className={cn('grid size-10 shrink-0 place-items-center rounded-xl', e.direction === 'inflow' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700')}>
+              {e.direction === 'inflow' ? <ArrowDownRight className="size-5" aria-label="inflow" /> : <ArrowUpRight className="size-5" aria-label="outflow" />}
+            </span>
+            <button
+              className="min-w-0 flex-1 text-left"
+              onClick={() => {
+                setEditing(e);
+                setEditorOpen(true);
+              }}
+            >
+              <div className="truncate text-sm font-medium">{e.description || e.id}</div>
+              <div className="flex flex-wrap items-center gap-1.5 text-xs text-stone-500">
+                {e.date} · <StatusBadge status={e.status} />
+              </div>
+            </button>
+            <Money value={e.direction === 'outflow' ? `-${e.amountMinor}` : e.amountMinor} signed decimals={false} className="text-sm font-semibold" />
+          </motion.div>
+        ))}
+        {!filtered.length ? <p className="py-6 text-center text-sm text-stone-500">No records match.</p> : null}
+      </div>
+      <Card className="hidden md:block">
         <Table>
           <caption className="sr-only">Cash records</caption>
           <THead>

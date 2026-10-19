@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { CartesianGrid, ComposedChart, Area, Legend, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { CalendarX2, FlaskConical, RotateCcw, TrendingDown, Waves, Wallet } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, CalendarX2, ChevronLeft, ChevronRight, FlaskConical, MousePointerClick, RotateCcw, TrendingDown, Waves, Wallet } from 'lucide-react';
 import {
   BASELINE_SCENARIO,
   SCENARIO_LIMITS,
@@ -22,6 +22,8 @@ import { useMoney } from '@/lib/money';
 import { useMarkVisited } from '@/lib/journey';
 import { RequireWorkspace } from '@/app/RequireWorkspace';
 import { cn } from '@/lib/utils';
+import { GLOSSARY, Term } from '@/components/Term';
+import { AnimatePresence, motion } from '@/components/motion';
 
 export function CashflowPage() {
   return (
@@ -64,6 +66,7 @@ function CashflowInner() {
   const { fmt, currency } = useMoney();
   const [scenario, setScenario] = useState<Scenario>({ ...BASELINE_SCENARIO, id: 'custom', label: 'Custom what-if' });
   const [showAll, setShowAll] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
   useMarkVisited('/cashflow', !!cashflow);
   const ws = snapshot!.workspace!;
   const active = scenario.salesDelayDays !== 0 || scenario.salesChangePct !== 0 || scenario.costChangePct !== 0;
@@ -104,10 +107,10 @@ function CashflowInner() {
         <Stat label="First negative day" icon={CalendarX2} tone={cashflow.earliestNegativeDate ? 'danger' : 'ok'}>
           {cashflow.earliestNegativeDate ? formatCivilDate(cashflow.earliestNegativeDate) : 'None'}
         </Stat>
-        <Stat label="Funding gap" icon={Waves} tone={cashflow.fundingGapMinor !== '0' ? 'danger' : 'ok'}>
+        <Stat label={<Term tip={GLOSSARY.fundingGap}>Funding gap</Term>} icon={Waves} tone={cashflow.fundingGapMinor !== '0' ? 'danger' : 'ok'}>
           <Money value={cashflow.fundingGapMinor} approx="below" decimals={false} />
         </Stat>
-        <Stat label="Below buffer from" icon={TrendingDown} tone={cashflow.earliestBelowBufferDate ? 'warning' : 'ok'} hint={`Buffer ${fmt(cashflow.bufferMinor, { decimals: false })}`}>
+        <Stat label={<Term tip={GLOSSARY.buffer}>Below buffer from</Term>} icon={TrendingDown} tone={cashflow.earliestBelowBufferDate ? 'warning' : 'ok'} hint={`Buffer ${fmt(cashflow.bufferMinor, { decimals: false })}`}>
           {cashflow.earliestBelowBufferDate ? formatCivilDate(cashflow.earliestBelowBufferDate) : 'Never'}
         </Stat>
         <Stat label="Net cash over window" icon={Wallet} hint={`In ${fmt(cashflow.totals.inflowMinor, { decimals: false })} · Out ${fmt(cashflow.totals.outflowMinor, { decimals: false })}`}>
@@ -124,7 +127,17 @@ function CashflowInner() {
           <CardContent>
             <div className="h-80 w-full" role="img" aria-label={`Projected closing cash; minimum ${fmt(cashflow.minClosingMinor)} on ${cashflow.minClosingDate}. The table below contains the same values.`}>
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+                <ComposedChart
+                  data={data}
+                  margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+                  onClick={(st) => {
+                    const p = st as { activeLabel?: string | number; activeTooltipIndex?: number | string } | null;
+                    const idx = p?.activeTooltipIndex !== undefined && p.activeTooltipIndex !== null ? Number(p.activeTooltipIndex) : NaN;
+                    const label = p?.activeLabel ?? (Number.isInteger(idx) ? data[idx]?.date : undefined);
+                    if (label !== undefined) setSelected(String(label));
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
                   <defs>
                     <linearGradient id="negFill" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#ef4444" stopOpacity={0.05} />
@@ -142,19 +155,21 @@ function CashflowInner() {
                   {active ? <Legend formatter={(v) => (v === 'whatIf' ? 'What-if' : v === 'closing' ? 'Records' : '')} wrapperStyle={{ fontSize: 12 }} /> : null}
                   <ReferenceLine y={0} stroke="#a8a29e" />
                   <ReferenceLine y={buffer} stroke="#e8960c" strokeDasharray="5 4" />
+                  {selected ? <ReferenceLine x={selected} stroke="#10402e" strokeWidth={1.5} /> : null}
                   <Area type="stepAfter" dataKey="negative" fill="url(#negFill)" stroke="none" isAnimationActive={false} tooltipType="none" legendType="none" />
                   <Line type="stepAfter" dataKey="closing" stroke="#187a4f" strokeWidth={2.5} dot={false} isAnimationActive={false} />
                   {active ? <Line type="stepAfter" dataKey="whatIf" stroke="#7c3aed" strokeWidth={2} strokeDasharray="6 4" dot={false} isAnimationActive={false} /> : null}
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
+            <DayDetail date={selected} onChange={setSelected} />
           </CardContent>
         </Card>
 
         <Card className={cn(active && 'ring-2 ring-violet-200')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FlaskConical className="size-4 text-violet-600" aria-hidden /> What-if scenario
+              <FlaskConical className="size-4 text-violet-600" aria-hidden /> <Term tip={GLOSSARY.whatIf}>What-if scenario</Term>
             </CardTitle>
             <CardDescription>Stress planned receipts and costs. Your records are not changed.</CardDescription>
           </CardHeader>
@@ -163,7 +178,11 @@ function CashflowInner() {
               {STRESS_PRESETS.map((p) => (
                 <button
                   key={p.id}
-                  className="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-xs font-medium text-stone-700 hover:border-violet-300 hover:bg-violet-50"
+                  aria-pressed={scenario.id === p.id}
+                  className={cn(
+                    'rounded-full border px-2.5 py-1 text-xs font-medium transition-all active:scale-95',
+                    scenario.id === p.id ? 'border-violet-400 bg-violet-600 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-violet-300 hover:bg-violet-50',
+                  )}
                   onClick={() => setScenario({ ...p })}
                 >
                   {p.label}
@@ -177,7 +196,7 @@ function CashflowInner() {
               value={scenario.salesDelayDays}
               min={SCENARIO_LIMITS.salesDelayDays.min}
               max={60}
-              onChange={(v) => setScenario((s) => ({ ...s, salesDelayDays: v }))}
+              onChange={(v) => setScenario((s) => ({ ...s, id: 'custom', salesDelayDays: v }))}
               describe="Shifts planned sales receipts (harvest, buyer payments)."
             />
             <Slider
@@ -187,7 +206,7 @@ function CashflowInner() {
               value={scenario.salesChangePct}
               min={-50}
               max={SCENARIO_LIMITS.salesChangePct.max}
-              onChange={(v) => setScenario((s) => ({ ...s, salesChangePct: v }))}
+              onChange={(v) => setScenario((s) => ({ ...s, id: 'custom', salesChangePct: v }))}
               describe="Price or volume change on planned sales."
             />
             <Slider
@@ -197,11 +216,12 @@ function CashflowInner() {
               value={scenario.costChangePct}
               min={-30}
               max={50}
-              onChange={(v) => setScenario((s) => ({ ...s, costChangePct: v }))}
+              onChange={(v) => setScenario((s) => ({ ...s, id: 'custom', costChangePct: v }))}
               describe="Inputs, transport, and operating costs."
             />
+            <AnimatePresence initial={false}>
             {stressed ? (
-              <div className="space-y-2 rounded-xl bg-violet-50 p-3 text-sm">
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-2 overflow-hidden rounded-xl bg-violet-50 p-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-stone-600">What-if gap</span>
                   <Money value={stressed.fundingGapMinor} decimals={false} className="font-semibold" />
@@ -220,10 +240,10 @@ function CashflowInner() {
                 <Button size="sm" variant="ghost" className="w-full" onClick={() => setScenario({ ...BASELINE_SCENARIO, id: 'custom', label: 'Custom what-if' })}>
                   <RotateCcw aria-hidden /> Reset scenario
                 </Button>
-              </div>
-            ) : (
-              <p className="text-xs text-stone-500">Move a slider or pick a preset to compare against your records.</p>
-            )}
+              </motion.div>
+            ) : null}
+            </AnimatePresence>
+            {!stressed ? <p className="text-xs text-stone-500">Move a slider or pick a preset to compare against your records.</p> : null}
             <TruthNote>Scenarios are your assumptions, not predictions. Settled history is never changed.</TruthNote>
           </CardContent>
         </Card>
@@ -319,5 +339,75 @@ function CashflowInner() {
       </Card>
       <TruthNote>{TRUTH_LABELS.cashflow} Cash balance is not profit.</TruthNote>
     </div>
+  );
+}
+
+function DayDetail({ date, onChange }: { date: string | null; onChange: (d: string) => void }) {
+  const { snapshot, cashflow } = useSandbox();
+  if (!cashflow) return null;
+  if (!date) {
+    return (
+      <p className="mt-3 flex items-center gap-2 rounded-xl bg-stone-50 px-3 py-2 text-xs text-stone-500">
+        <MousePointerClick className="size-4" aria-hidden /> Click any day on the chart to see the money moving that day.
+      </p>
+    );
+  }
+  const idx = cashflow.days.findIndex((d) => d.date === date);
+  const day = cashflow.days[idx];
+  if (!day) return null;
+  const events = snapshot!.events.filter((e) => day.eventIds.includes(e.id));
+  const step = (n: number) => {
+    const next = cashflow.days[idx + n];
+    if (next) onChange(next.date);
+  };
+  return (
+    <motion.div key={date} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-3 rounded-2xl border border-stone-200 p-4" aria-live="polite">
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <div className="text-xs text-stone-500">Selected day</div>
+          <div className="font-semibold">{formatCivilDate(day.date)}</div>
+        </div>
+        <div className="flex gap-1">
+          <Button size="icon" variant="outline" aria-label="Previous day" onClick={() => step(-1)} disabled={idx === 0}>
+            <ChevronLeft />
+          </Button>
+          <Button size="icon" variant="outline" aria-label="Next day" onClick={() => step(1)} disabled={idx === cashflow.days.length - 1}>
+            <ChevronRight />
+          </Button>
+        </div>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+        <div className="rounded-lg bg-stone-50 px-3 py-2">
+          <div className="text-xs text-stone-500">Opening</div>
+          <Money value={day.openingMinor} decimals={false} className="font-semibold" />
+        </div>
+        <div className="rounded-lg bg-emerald-50 px-3 py-2">
+          <div className="text-xs text-stone-500">In</div>
+          <Money value={(BigInt(day.inflowPlannedMinor) + BigInt(day.inflowSettledMinor)).toString()} decimals={false} className="font-semibold" />
+        </div>
+        <div className="rounded-lg bg-red-50 px-3 py-2">
+          <div className="text-xs text-stone-500">Out</div>
+          <Money value={(BigInt(day.outflowPlannedMinor) + BigInt(day.outflowSettledMinor)).toString()} decimals={false} className="font-semibold" />
+        </div>
+        <div className={cn('rounded-lg px-3 py-2', day.alert === 'critical' ? 'bg-red-100' : day.alert === 'low' ? 'bg-amber-50' : 'bg-stone-50')}>
+          <div className="text-xs text-stone-500">Closing</div>
+          <Money value={day.closingMinor} decimals={false} className="font-semibold" />
+        </div>
+      </div>
+      {events.length ? (
+        <ul className="mt-3 space-y-1.5">
+          {events.map((e) => (
+            <li key={e.id} className="flex items-center gap-2 text-sm">
+              {e.direction === 'inflow' ? <ArrowDownRight className="size-4 text-emerald-600" aria-label="inflow" /> : <ArrowUpRight className="size-4 text-red-600" aria-label="outflow" />}
+              <span className="min-w-0 flex-1 truncate">{e.description || e.id}</span>
+              <span className="text-xs text-stone-400">{e.sourceRef}</span>
+              <Money value={e.direction === 'outflow' ? `-${e.amountMinor}` : e.amountMinor} signed decimals={false} className="font-medium" />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-sm text-stone-500">No money moves on this day.</p>
+      )}
+    </motion.div>
   );
 }

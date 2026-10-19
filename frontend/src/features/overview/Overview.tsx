@@ -10,6 +10,8 @@ import { useSandbox } from '@/state/SandboxProvider';
 import { useMoney } from '@/lib/money';
 import { useJourney } from '@/lib/journey';
 import { RequireWorkspace } from '@/app/RequireWorkspace';
+import { CountUpMoney, Stagger, StaggerItem, motion } from '@/components/motion';
+import { GLOSSARY, Term } from '@/components/Term';
 import { cn } from '@/lib/utils';
 
 export function Overview() {
@@ -84,7 +86,10 @@ function OverviewInner() {
       />
 
       {/* Cash health hero */}
-      <section
+      <motion.section
+        initial={{ opacity: 0, y: 14, scale: 0.99 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className={cn(
           'relative overflow-hidden rounded-3xl p-6 text-white shadow-[var(--shadow-lift)] sm:p-8',
           tone === 'danger' ? 'bg-gradient-to-br from-[#5b1414] via-[#7f1d1d] to-[#9a3412]' : tone === 'warning' ? 'bg-gradient-to-br from-[#713f12] to-[#a16207]' : 'bg-brand-gradient',
@@ -111,7 +116,7 @@ function OverviewInner() {
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/85 sm:text-base">
               {shortfall ? (
                 <>
-                  You need <strong className="text-white">{fmt(cashflow.fundingGapMinor, { decimals: false })}</strong>
+                  You need <strong className="text-white"><CountUpMoney value={cashflow.fundingGapMinor} className="text-white" /></strong>
                   {approx(cashflow.fundingGapMinor) ? <span className="text-white/70"> ({approx(cashflow.fundingGapMinor)})</span> : null} to stay above zero. The lowest point is{' '}
                   {formatCivilDate(cashflow.minClosingDate)}
                   {recovery ? <>, and cash recovers on {formatCivilDate(recovery)} when receipts arrive</> : null}.
@@ -155,22 +160,34 @@ function OverviewInner() {
             </ResponsiveContainer>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat label="Opening cash" icon={Wallet} hint={`Start of ${formatCivilDate(ws.asOfDate)}`}>
-          <Money value={cashflow.openingCashMinor} approx="below" decimals={false} />
-        </Stat>
-        <Stat label="Lowest point" icon={TrendingDown} tone={cashflow.minClosingMinor.startsWith('-') ? 'danger' : 'ok'} hint={formatCivilDate(cashflow.minClosingDate)}>
-          <Money value={cashflow.minClosingMinor} approx="below" decimals={false} />
-        </Stat>
-        <Stat label="Funding gap" icon={Waves} tone={cashflow.fundingGapMinor !== '0' ? 'danger' : 'ok'} hint="Largest cumulative shortfall">
-          <Money value={cashflow.fundingGapMinor} approx="below" decimals={false} />
-        </Stat>
-        <Stat label="Ending cash" icon={CalendarClock} hint={`End of ${formatCivilDate(cashflow.window.end)}`}>
-          <Money value={cashflow.totals.endingCashMinor} approx="below" decimals={false} />
-        </Stat>
-      </div>
+      <Stagger className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <StaggerItem>
+          <Stat label={<Term tip={GLOSSARY.openingCash}>Opening cash</Term>} icon={Wallet} hint={`Start of ${formatCivilDate(ws.asOfDate)}`}>
+            <CountUpMoney value={cashflow.openingCashMinor} />
+            <Approx v={cashflow.openingCashMinor} />
+          </Stat>
+        </StaggerItem>
+        <StaggerItem>
+          <Stat label={<Term tip={GLOSSARY.lowestPoint}>Lowest point</Term>} icon={TrendingDown} tone={cashflow.minClosingMinor.startsWith('-') ? 'danger' : 'ok'} hint={formatCivilDate(cashflow.minClosingDate)}>
+            <CountUpMoney value={cashflow.minClosingMinor} />
+            <Approx v={cashflow.minClosingMinor} />
+          </Stat>
+        </StaggerItem>
+        <StaggerItem>
+          <Stat label={<Term tip={GLOSSARY.fundingGap}>Funding gap</Term>} icon={Waves} tone={cashflow.fundingGapMinor !== '0' ? 'danger' : 'ok'} hint="Largest cumulative shortfall">
+            <CountUpMoney value={cashflow.fundingGapMinor} />
+            <Approx v={cashflow.fundingGapMinor} />
+          </Stat>
+        </StaggerItem>
+        <StaggerItem>
+          <Stat label="Ending cash" icon={CalendarClock} hint={`End of ${formatCivilDate(cashflow.window.end)}`}>
+            <CountUpMoney value={cashflow.totals.endingCashMinor} />
+            <Approx v={cashflow.totals.endingCashMinor} />
+          </Stat>
+        </StaggerItem>
+      </Stagger>
 
       <div className="grid gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3">
@@ -183,8 +200,14 @@ function OverviewInner() {
           <CardContent>
             {upcoming.length ? (
               <ul className="divide-y divide-stone-100">
-                {upcoming.map((e) => (
-                  <li key={e.id} className="flex items-center gap-3 py-2.5">
+                {upcoming.map((e, i) => (
+                  <motion.li
+                    key={e.id}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.15 + i * 0.05, duration: 0.35 }}
+                    className="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-stone-50"
+                  >
                     <span className={cn('grid size-9 shrink-0 place-items-center rounded-xl', e.direction === 'inflow' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700')}>
                       {e.direction === 'inflow' ? <ArrowDownRight className="size-4" aria-label="inflow" /> : <ArrowUpRight className="size-4" aria-label="outflow" />}
                     </span>
@@ -195,7 +218,7 @@ function OverviewInner() {
                       </div>
                     </div>
                     <Money value={e.direction === 'outflow' ? `-${e.amountMinor}` : e.amountMinor} signed className="text-sm font-semibold" decimals={false} />
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
             ) : (
@@ -255,4 +278,10 @@ function OverviewInner() {
       <TruthNote>{TRUTH_LABELS.cashflow}</TruthNote>
     </div>
   );
+}
+
+function Approx({ v }: { v: string }) {
+  const { approx } = useMoney();
+  const a = approx(v);
+  return a ? <span className="mt-0.5 block text-xs font-normal text-stone-500">{a}</span> : null;
 }

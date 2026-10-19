@@ -23,6 +23,8 @@ import { useMarkVisited } from '@/lib/journey';
 import { RequireWorkspace } from '@/app/RequireWorkspace';
 import { CatalogEditor } from './CatalogEditor';
 import { cn } from '@/lib/utils';
+import { GLOSSARY, Term } from '@/components/Term';
+import { AnimatePresence, motion } from '@/components/motion';
 
 export function FinancingPage() {
   return (
@@ -151,15 +153,26 @@ function FinancingInner() {
             role="tab"
             aria-selected={filter === k}
             onClick={() => setFilter(k)}
-            className={cn('rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors', filter === k ? 'bg-brand-800 text-white' : 'bg-white text-stone-700 ring-1 ring-stone-200 hover:bg-stone-50')}
+            className={cn('relative rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors', filter === k ? 'text-white' : 'bg-white text-stone-700 ring-1 ring-stone-200 hover:bg-stone-50')}
           >
-            {l} <span className={cn('ml-1 rounded-full px-1.5 text-xs', filter === k ? 'bg-white/20' : 'bg-stone-100')}>{counts[k]}</span>
+            {filter === k ? <motion.span layoutId="fin-filter" className="absolute inset-0 rounded-full bg-brand-800" transition={{ type: 'spring', stiffness: 400, damping: 32 }} /> : null}
+            <span className="relative">
+              {l} <span className={cn('ml-1 rounded-full px-1.5 text-xs', filter === k ? 'bg-white/20' : 'bg-stone-100')}>{counts[k]}</span>
+            </span>
           </button>
         ))}
       </div>
 
-      <div className="grid gap-4">
-        {shown.map((e) => (
+      <motion.div layout className="grid gap-4">
+        <AnimatePresence mode="popLayout" initial={false}>
+        {shown.map((e, i) => (
+          <motion.div
+            key={e.productId}
+            layout
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0, transition: { delay: Math.min(i, 6) * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] } }}
+            exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.15 } }}
+          >
           <OptionCard
             key={e.productId}
             e={e}
@@ -169,8 +182,10 @@ function FinancingInner() {
             stress={stress.get(e.productId) ?? null}
             onDraft={() => setDrafting(e)}
           />
+          </motion.div>
         ))}
-      </div>
+        </AnimatePresence>
+      </motion.div>
 
       <details className="rounded-2xl bg-white p-5 shadow-[var(--shadow-card)] ring-1 ring-stone-200/80">
         <summary className="cursor-pointer text-sm font-semibold">Method and assumptions</summary>
@@ -216,7 +231,7 @@ function OptionCard({
   const feePct = q ? Number((toBig(q.feeMinor) * 1000n) / maxCost) / 10 : 0;
   const intPct = q ? Number((toBig(q.interestMinor) * 1000n) / maxCost) / 10 : 0;
   return (
-    <Card className={cn('overflow-hidden', best && 'ring-2 ring-brand-400', !fits && 'bg-white/70')}>
+    <Card className={cn('lift overflow-hidden', best && 'ring-2 ring-brand-400', !fits && 'bg-white/70')}>
       {best ? (
         <div className="flex items-center gap-2 bg-brand-gradient px-5 py-2 text-xs font-semibold text-white">
           <Award className="size-4 text-harvest-400" aria-hidden /> Lowest modeled cost among the options provided
@@ -246,8 +261,8 @@ function OptionCard({
           <div className="rounded-2xl bg-stone-50 p-4">
             <dl className="grid grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-4">
               <KV k="Borrow" v={<Money value={q.principalMinor} decimals={false} approx="below" />} />
-              <KV k="You receive" v={<Money value={q.netCashReceivedMinor} decimals={false} />} />
-              <KV k="Total cost" v={<Money value={q.totalFinancingCostMinor} decimals={false} approx="below" />} strong />
+              <KV k={<Term tip={GLOSSARY.netCash}>You receive</Term>} v={<Money value={q.netCashReceivedMinor} decimals={false} />} />
+              <KV k={<Term tip={GLOSSARY.totalCost}>Total cost</Term>} v={<Money value={q.totalFinancingCostMinor} decimals={false} approx="below" />} strong />
               <KV k={e.maturityDate ? `Repay on ${formatCivilDate(e.maturityDate)}` : 'Repay'} v={<Money value={q.maturityRepaymentMinor} decimals={false} />} />
             </dl>
             <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-stone-200/70" aria-hidden>
@@ -310,8 +325,9 @@ function StressPanel({ report, productId }: { report: StressReport; productId: s
         </span>
         <ChevronDown className={cn('ml-auto size-4 text-stone-400 transition-transform', open && 'rotate-180')} aria-hidden />
       </button>
+      <AnimatePresence initial={false}>
       {open ? (
-        <div className="border-t border-stone-100 px-3 py-2">
+        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden border-t border-stone-100 px-3 py-2">
           <ul className="space-y-1.5 text-sm">
             {report.results.map((r) => (
               <li key={r.scenarioId} className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
@@ -323,18 +339,21 @@ function StressPanel({ report, productId }: { report: StressReport; productId: s
             ))}
           </ul>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs text-stone-500">Lowest cash with this loan in place, under each scenario.</p>
+            <p className="text-xs text-stone-500">
+              Lowest cash with this loan in place, under each scenario. <Term tip={GLOSSARY.stress}>How it works</Term>
+            </p>
             <Button size="sm" variant="ghost" disabled={busy} onClick={() => run('Stress test', (c) => c.stressTest(productId, 'user'), { success: 'Stress test recorded in Activity.' })}>
               Record result
             </Button>
           </div>
-        </div>
+        </motion.div>
       ) : null}
+      </AnimatePresence>
     </div>
   );
 }
 
-function KV({ k, v, strong }: { k: string; v: React.ReactNode; strong?: boolean }) {
+function KV({ k, v, strong }: { k: React.ReactNode; v: React.ReactNode; strong?: boolean }) {
   return (
     <div>
       <dt className="text-xs text-stone-500">{k}</dt>

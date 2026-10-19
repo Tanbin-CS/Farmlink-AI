@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { CheckCircle2, ShieldCheck, Timer } from 'lucide-react';
+import confetti from 'canvas-confetti';
+import { motion } from '@/components/motion';
+import { GLOSSARY, Term } from '@/components/Term';
 import { DESTINATION, randomId, type PendingAction, type SandboxReceipt } from '@farmlink/engine';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -45,7 +48,10 @@ export function ReviewDialog({ action, open, onOpenChange }: { action: PendingAc
 
   const confirm = async () => {
     const r = await run('Confirm sandbox submission', (c) => c.confirm(action.id, idemKey.current), { success: 'Sandbox submission recorded.' });
-    if (r) setReceipt(r);
+    if (r) {
+      setReceipt(r);
+      void confetti({ particleCount: 90, spread: 70, startVelocity: 32, origin: { y: 0.35 }, colors: ['#259863', '#f5b52e', '#7fd1a6', '#10402e'], disableForReducedMotion: true, zIndex: 80 });
+    }
   };
   const cancel = async () => {
     await run('Cancel', (c) => c.cancel(action.id), { success: 'Pending submission cancelled.' });
@@ -64,6 +70,9 @@ export function ReviewDialog({ action, open, onOpenChange }: { action: PendingAc
 
         {receipt ? (
           <div className="space-y-3">
+            <motion.div initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 16 }} className="mx-auto grid size-16 place-items-center rounded-full bg-emerald-100 text-emerald-700">
+              <CheckCircle2 className="size-9" aria-hidden />
+            </motion.div>
             <Alert variant="success">
               <CheckCircle2 aria-hidden />
               <div>Recorded as SANDBOX_SUBMITTED. This means the internal simulator received the application. It was not approved, paid, or sent to any institution.</div>
@@ -96,7 +105,7 @@ export function ReviewDialog({ action, open, onOpenChange }: { action: PendingAc
             </div>
             <div className="flex flex-wrap items-center gap-3 text-xs text-stone-600">
               <span className="inline-flex items-center gap-1">
-                <ShieldCheck className="size-3.5" aria-hidden /> Payload hash {action.payloadHash.slice(0, 16)}…
+                <ShieldCheck className="size-3.5" aria-hidden /> <Term tip={GLOSSARY.payloadHash}>Payload hash</Term> {action.payloadHash.slice(0, 16)}…
               </span>
               <span className={`inline-flex items-center gap-1 ${expired ? 'text-red-700' : ''}`}>
                 <Timer className="size-3.5" aria-hidden /> {expired ? 'Expired: prepare again' : `Expires in ${label}`}

@@ -19,6 +19,7 @@ import type { ChatTurn } from '@/services/types';
 import { cn } from '@/lib/utils';
 import { useMoney } from '@/lib/money';
 import { DemoLauncher } from '@/components/DemoLauncher';
+import { motion } from '@/components/motion';
 
 export function CopilotPanel() {
   const { client, snapshot } = useSandbox();
@@ -38,7 +39,7 @@ export function CopilotPanel() {
         </div>
         <ModeBadge mode={client.mode} />
       </div>
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto overscroll-contain p-4" data-lenis-prevent>
         {live && snapshot?.workspace ? (
           <div role="tablist" aria-label="Copilot view" className="mb-3 grid grid-cols-2 gap-1 rounded-lg bg-stone-100 p-1 text-sm">
             {(['chat', 'tools'] as const).map((v) => (
@@ -315,8 +316,14 @@ function LiveChat() {
       ) : null}
       <ol className="space-y-3" aria-live="polite">
         {entries.map((e, i) => (
-          <li key={i} className={cn('rounded-lg p-3', e.role === 'user' ? 'ml-6 bg-brand-50' : e.error ? 'border border-red-200 bg-red-50' : 'mr-2 border border-stone-200')}>
-            <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-stone-500">
+          <motion.li
+            key={i}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className={cn('rounded-2xl p-3', e.role === 'user' ? 'ml-8 rounded-br-md bg-brand-700 text-white' : e.error ? 'border border-red-200 bg-red-50' : 'mr-4 rounded-bl-md border border-stone-200 bg-white')}
+          >
+            <div className={cn('mb-1 text-[11px] font-semibold uppercase tracking-wide', e.role === 'user' ? 'text-brand-100' : 'text-stone-500')}>
               {e.role === 'user' ? 'You' : e.error ? 'Error (no response invented)' : `Model · run ${e.runId?.slice(0, 10)} · ${e.status}`}
             </div>
             {/* Plain text only: model output is never rendered as HTML. */}
@@ -346,13 +353,19 @@ function LiveChat() {
                 Review and confirm (human only)
               </Button>
             ) : null}
-          </li>
+          </motion.li>
         ))}
       </ol>
       {pending ? (
-        <p className="flex items-center gap-2 text-stone-600">
-          <Loader2 className="size-4 animate-spin" aria-hidden /> Waiting for the model and tools (free hosting may need a cold start)…
-        </p>
+        <div className="mr-8 flex items-center gap-3 rounded-2xl border border-stone-200 px-3 py-2.5 text-stone-600" role="status">
+          <span className="flex gap-1" aria-hidden>
+            <span className="typing-dot size-1.5 rounded-full bg-brand-600" />
+            <span className="typing-dot size-1.5 rounded-full bg-brand-600 [animation-delay:150ms]" />
+            <span className="typing-dot size-1.5 rounded-full bg-brand-600 [animation-delay:300ms]" />
+          </span>
+          <span className="text-xs">Thinking and running tools… (free hosting may need a cold start)</span>
+          <Loader2 className="sr-only" aria-hidden />
+        </div>
       ) : null}
       <form onSubmit={onSubmit} className="sticky bottom-0 mt-auto flex gap-2 bg-white pt-2">
         <Label htmlFor="copilot-msg" className="sr-only">

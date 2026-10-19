@@ -106,7 +106,7 @@ export function Stat({
   tone = 'neutral',
   icon: Icon,
 }: {
-  label: string;
+  label: ReactNode;
   children: ReactNode;
   hint?: ReactNode;
   tone?: keyof typeof TONE;

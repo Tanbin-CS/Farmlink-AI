@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+import { Play } from 'lucide-react';
 import type { CurrencyCode } from '@farmlink/engine';
 import { Button } from '@/components/ui/button';
 import { useSandbox } from '@/state/SandboxProvider';
@@ -18,7 +18,7 @@ export function DemoLauncher({ size = 'default', navigateTo, className, label = 
   return (
     <div className={cn('inline-flex flex-wrap items-center gap-2', className)}>
       <Button size={size} onClick={start} disabled={busy}>
-        <Sparkles aria-hidden /> {label}
+        <Play aria-hidden /> {label}
       </Button>
       <div role="radiogroup" aria-label="Demo currency" className="inline-flex rounded-lg bg-stone-100 p-0.5 text-xs font-semibold">
         {(['BDT', 'USD', 'EUR'] as CurrencyCode[]).map((c) => (

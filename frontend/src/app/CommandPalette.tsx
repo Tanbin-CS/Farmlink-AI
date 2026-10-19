@@ -15,8 +15,8 @@ import {
   ListChecks,
   PlusCircle,
   Search,
-  Sparkles,
-  Wand2,
+  Sprout,
+  SlidersHorizontal,
 } from 'lucide-react';
 import type { CurrencyCode } from '@farmlink/engine';
 import { useSandbox } from '@/state/SandboxProvider';
@@ -126,7 +126,7 @@ export function CommandPalette() {
               </Command.Group>
               <Command.Group heading="Actions" className="mt-1 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-stone-400">
                 {(['BDT', 'USD', 'EUR'] as CurrencyCode[]).map((c) => (
-                  <Item key={c} icon={Sparkles} onSelect={() => void demo(c)}>
+                  <Item key={c} icon={Sprout} onSelect={() => void demo(c)}>
                     Load fictional demo in {c}
                   </Item>
                 ))}
@@ -136,7 +136,7 @@ export function CommandPalette() {
                   </Item>
                 ) : null}
                 {hasWs ? (
-                  <Item icon={Wand2} onSelect={() => go('/cashflow')}>
+                  <Item icon={SlidersHorizontal} onSelect={() => go('/cashflow')}>
                     Try a what-if scenario
                   </Item>
                 ) : null}

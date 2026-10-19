@@ -15,7 +15,7 @@ import {
   LockKeyhole,
   ScrollText,
   ShieldCheck,
-  Sparkles,
+  Sprout,
   Timer,
   XCircle,
 } from 'lucide-react';
@@ -91,7 +91,7 @@ export function Landing() {
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-6 lg:grid-cols-[1.05fr_1fr] lg:pt-12">
         <motion.div initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}>
           <motion.p variants={heroItem} className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-brand-800 shadow-sm ring-1 ring-brand-200">
-            <Sparkles className="size-3.5 text-harvest-500" aria-hidden /> FinTechathon 2026 · Topic E · SME Finance Copilot
+            <Sprout className="size-3.5 text-brand-600" aria-hidden /> FinTechathon 2026 · Topic E · SME Finance Copilot
           </motion.p>
           <motion.h1 variants={heroItem} className="text-4xl font-semibold leading-[1.08] tracking-tight text-stone-900 sm:text-5xl lg:text-[56px]">
             Bridge the gap between <span className="text-brand-700">planting</span> and <span className="text-harvest-500">harvest</span>.

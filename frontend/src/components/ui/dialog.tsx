@@ -8,11 +8,16 @@ export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogClose = DialogPrimitive.Close;
 
-export function DialogContent({ className, children, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>) {
+/** Mounted only inside open dialog content, so smooth scrolling pauses exactly while a dialog is open. */
+function PauseSmoothScrollWhileOpen() {
   React.useEffect(() => {
     pauseSmoothScroll(true);
     return () => pauseSmoothScroll(false);
   }, []);
+  return null;
+}
+
+export function DialogContent({ className, children, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-stone-950/45 backdrop-blur-[2px] data-[state=open]:animate-[fadeIn_160ms_ease-out]" />
@@ -24,6 +29,7 @@ export function DialogContent({ className, children, ...props }: React.Component
         )}
         {...props}
       >
+        <PauseSmoothScrollWhileOpen />
         {children}
         <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100" aria-label="Close">
           <X className="h-4 w-4" />

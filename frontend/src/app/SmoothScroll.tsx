@@ -4,11 +4,16 @@ import 'lenis/dist/lenis.css';
 
 const LenisContext = createContext<Lenis | null>(null);
 let current: Lenis | null = null;
+let pauses = 0;
 
-/** Pause smooth scrolling while a modal owns the scroll (dialogs, command palette). */
+/**
+ * Pause smooth scrolling while a modal owns the scroll (dialogs, command palette).
+ * Reference-counted: every pause(true) must be matched by exactly one pause(false).
+ */
 export function pauseSmoothScroll(paused: boolean) {
+  pauses = Math.max(0, pauses + (paused ? 1 : -1));
   if (!current) return;
-  if (paused) current.stop();
+  if (pauses > 0) current.stop();
   else current.start();
 }
 
@@ -19,6 +24,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     if (typeof window === 'undefined' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const l = new Lenis({ autoRaf: true, lerp: 0.12, wheelMultiplier: 1, smoothWheel: true });
     current = l;
+    if (pauses > 0) l.stop();
     setLenis(l);
     return () => {
       l.destroy();

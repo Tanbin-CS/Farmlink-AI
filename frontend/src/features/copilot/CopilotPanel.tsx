@@ -19,6 +19,7 @@ import type { ChatTurn } from '@/services/types';
 import { cn } from '@/lib/utils';
 import { useMoney } from '@/lib/money';
 import { DemoLauncher } from '@/components/DemoLauncher';
+import { GoLiveCard } from './GoLiveCard';
 import { motion } from '@/components/motion';
 
 export function CopilotPanel() {
@@ -55,6 +56,7 @@ export function CopilotPanel() {
             ))}
           </div>
         ) : null}
+        <GoLiveCard />
         {!snapshot?.workspace ? <NoWorkspace /> : live && view === 'chat' ? <LiveChat /> : <GuidedSteps />}
       </div>
     </section>

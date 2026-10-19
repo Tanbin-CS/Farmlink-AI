@@ -64,7 +64,9 @@ export function CommandPalette() {
   }, []);
 
   useEffect(() => {
-    pauseSmoothScroll(open);
+    if (!open) return;
+    pauseSmoothScroll(true);
+    return () => pauseSmoothScroll(false);
   }, [open]);
 
   const go = (to: string) => {

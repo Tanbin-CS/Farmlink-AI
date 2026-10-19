@@ -125,3 +125,17 @@ test('clicking the forecast chart shows that day in detail', async ({ page }) =>
   await page.getByRole('button', { name: 'Next day' }).click();
   await expect(page.getByText('Selected day')).toBeVisible();
 });
+
+test('the page keeps scrolling with the mouse wheel after dialogs open and close', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'mouse wheel is a desktop interaction');
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Try the demo' }).click();
+  await expect(page.getByText(/Cash runs out in 7 days/)).toBeVisible();
+  await page.goto('./#/setup');
+  await page.keyboard.press('Control+k');
+  await page.keyboard.press('Escape');
+  await page.mouse.move(700, 600);
+  await page.mouse.wheel(0, 900);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
+  await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains('lenis-stopped'))).toBe(false);
+});

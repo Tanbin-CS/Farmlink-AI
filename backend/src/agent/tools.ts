@@ -199,10 +199,22 @@ const TOOLS = {
     args: z.object({ applicationId: z.string().regex(/^[A-Za-z0-9_-]{1,80}$/) }).strict(),
     run: async (svc, ctx, args) => {
       const a = await svc.prepare(ctx, args.applicationId);
+      const s = await svc.stressOfAction(ctx, a);
+      const stressCheck = s
+        ? {
+            survives: `${s.passed} of ${s.total} adverse scenarios`,
+            verdict: s.verdict,
+            failedScenarios: s.results.filter((x) => !x.passes).map((x) => x.label),
+            mustTellUser:
+              s.verdict === 'resilient'
+                ? 'State that these exact terms kept cash non-negative in every stress scenario (assumptions, not predictions).'
+                : `Warn the user plainly before they confirm: these exact terms survive only ${s.passed} of ${s.total} adverse scenarios (${s.verdict}). Suggest reviewing the "Gap + buffer" financing target. Do not call this option safe.`,
+          }
+        : null;
       return {
         policy: 'requires_confirmation',
         pendingAction: a,
-        output: { pendingActionId: a.id, status: 'AWAITING_CONFIRMATION', expiresAt: a.expiresAt, note: 'Waiting for human confirmation. You cannot confirm this.' },
+        output: { pendingActionId: a.id, status: 'AWAITING_CONFIRMATION', expiresAt: a.expiresAt, stressCheck, note: 'Waiting for human confirmation. You cannot confirm this.' },
       };
     },
   } satisfies ToolDef<{ applicationId: string }>,

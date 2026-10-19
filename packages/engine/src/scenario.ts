@@ -93,12 +93,15 @@ export interface StressReport {
   verdict: 'resilient' | 'partly_resilient' | 'fragile';
 }
 
+/** The loan terms a stress test holds fixed: a costed evaluation or a frozen submission payload. */
+export type StressSubject = Pick<ProductEvaluation, 'productId' | 'quote' | 'disbursementDate' | 'maturityDate'>;
+
 /**
  * Repayment stress check: keeps the drafted loan fixed (principal, disbursement, maturity)
  * and asks whether cash stays non-negative through maturity under each adverse scenario.
  * The forecast window is extended to cover maturity so late harvests are not cut off.
  */
-export function stressTestOption(workspace: Workspace, events: CashEvent[], evaluation: ProductEvaluation, scenarios: Scenario[] = STRESS_PRESETS): StressReport | null {
+export function stressTestOption(workspace: Workspace, events: CashEvent[], evaluation: StressSubject, scenarios: Scenario[] = STRESS_PRESETS): StressReport | null {
   if (!evaluation.quote || !evaluation.disbursementDate || !evaluation.maturityDate) return null;
   const horizon = Math.max(workspace.forecastDays, diffDays(workspace.asOfDate, evaluation.maturityDate) + 1);
   const ws = { ...workspace, forecastDays: horizon as Workspace['forecastDays'] };

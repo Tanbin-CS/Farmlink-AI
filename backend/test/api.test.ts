@@ -7,6 +7,9 @@ import { MemoryStore } from '../src/storage/memory';
 import { normalizeConnectionString } from '../src/storage/pg';
 import type { Conversation, ModelProvider, ModelTurn, ToolResultMessage } from '../src/agent/provider';
 import { ProviderError } from '../src/agent/provider';
+import { getTool } from '../src/agent/tools';
+import { SandboxService } from '../src/services/sandbox';
+import { issueSession } from '../src/auth/sessions';
 
 const ORIGIN = 'https://example-team.github.io';
 
@@ -329,6 +332,22 @@ describe('agent loop', () => {
     expect(snap.body.applications[0].status).toBe('AWAITING_CONFIRMATION');
     const ok = await request(app).post(`/v1/actions/${r.body.pendingAction.id}/confirm`).set(auth(t)).set('Idempotency-Key', 'human-confirm-1').send({});
     expect(ok.status).toBe(200);
+  });
+
+  it('prepare tells the model the stress result of the exact terms, with a warning when fragile', async () => {
+    const store = new MemoryStore();
+    const svc = new SandboxService(store, { buildSha: 'test', providerInfo: () => null });
+    const { session: s } = await issueSession(store, 60_000, new Date());
+    const ctx = { sessionId: s.id, actor: 'model' as const, runId: 'run_test' };
+    await svc.loadDemo(ctx);
+    const draft = await svc.createDraft(ctx, 'sbx-seasonal-a', 'seed');
+    const exec = await getTool('prepare_sandbox_submission').run(svc, ctx, { applicationId: draft.id });
+    const out = exec.output as { stressCheck: { survives: string; verdict: string; failedScenarios: string[]; mustTellUser: string } };
+    expect(exec.policy).toBe('requires_confirmation');
+    expect(out.stressCheck.verdict).toBe('fragile');
+    expect(out.stressCheck.survives).toBe('0 of 4 adverse scenarios');
+    expect(out.stressCheck.failedScenarios).toHaveLength(4);
+    expect(out.stressCheck.mustTellUser).toMatch(/Warn the user plainly/);
   });
 
   it('rejects invalid tool arguments before execution', async () => {

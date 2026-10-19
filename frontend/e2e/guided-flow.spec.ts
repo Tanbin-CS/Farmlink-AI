@@ -35,7 +35,10 @@ test('guided sandbox: demo → cash flow → financing → draft → confirm →
   await expect(dialog.getByText('FarmLink internal lender simulator').first()).toBeVisible();
   const confirm = dialog.getByRole('button', { name: 'Confirm sandbox submission' });
   await expect(confirm).toBeDisabled();
-  await dialog.getByRole('checkbox').check();
+  await expect(dialog.getByTestId('review-stress')).toContainText('survive only 0 of 4 adverse scenarios');
+  await dialog.getByRole('checkbox', { name: /I reviewed these exact terms/ }).check();
+  await expect(confirm).toBeDisabled();
+  await dialog.getByRole('checkbox', { name: /fail 4 of 4 stress scenarios/ }).check();
   await confirm.click();
   await expect(dialog.getByTestId('receipt')).toBeVisible();
   await expect(dialog.getByText('Local sandbox receipt — browser only')).toBeVisible();

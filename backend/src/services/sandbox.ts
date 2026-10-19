@@ -323,6 +323,14 @@ export class SandboxService {
     });
   }
 
+  /** Stress check of the exact frozen terms of a pending action (read-only, not logged separately). */
+  async stressOfAction(ctx: Ctx, action: PendingAction): Promise<StressReport | null> {
+    return this.store.withSession(ctx.sessionId, async (tx) => {
+      const b = await getBundle(tx);
+      return stressTestOption(requireWorkspace(b), b.events, action.payload);
+    });
+  }
+
   async getRecords(ctx: Ctx, filter: { status?: CashEvent['status']; limit?: number }) {
     return this.store.withSession(ctx.sessionId, async (tx) => {
       const b = await getBundle(tx);

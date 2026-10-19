@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, ShieldCheck, Timer } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AlertTriangle, CheckCircle2, ShieldCheck, Timer, XCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { motion } from '@/components/motion';
 import { GLOSSARY, Term } from '@/components/Term';
-import { DESTINATION, randomId, type PendingAction, type SandboxReceipt } from '@farmlink/engine';
+import { DESTINATION, randomId, stressTestOption, type PendingAction, type SandboxReceipt, type StressReport } from '@farmlink/engine';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
@@ -29,22 +29,30 @@ function useCountdown(expiresAt: string | undefined) {
  * to SANDBOX_SUBMITTED; no chat message or model output can trigger it.
  */
 export function ReviewDialog({ action, open, onOpenChange }: { action: PendingAction | null; open: boolean; onOpenChange: (v: boolean) => void }) {
-  const { run, busy, client } = useSandbox();
+  const { run, busy, client, snapshot } = useSandbox();
   const idemKey = useRef<string>('');
   const [receipt, setReceipt] = useState<SandboxReceipt | null>(null);
   const [acknowledged, setAcknowledged] = useState(false);
+  const [riskAcknowledged, setRiskAcknowledged] = useState(false);
   const { expired, label } = useCountdown(action?.expiresAt);
+  // Stress-test the exact frozen terms, so the human sees repayment risk before confirming.
+  const stress = useMemo(
+    () => (action && snapshot?.workspace ? stressTestOption(snapshot.workspace, snapshot.events, action.payload) : null),
+    [action, snapshot],
+  );
 
   useEffect(() => {
     if (open) {
       idemKey.current = randomId('idem', 16);
       setReceipt(null);
       setAcknowledged(false);
+      setRiskAcknowledged(false);
     }
   }, [open, action?.id]);
 
   if (!action) return null;
   const p = action.payload;
+  const weak = stress !== null && stress.verdict !== 'resilient';
 
   const confirm = async () => {
     const r = await run('Confirm sandbox submission', (c) => c.confirm(action.id, idemKey.current), { success: 'Sandbox submission recorded.' });
@@ -91,6 +99,7 @@ export function ReviewDialog({ action, open, onOpenChange }: { action: PendingAc
               <Row k="Modeled disbursement" v={p.disbursementDate} />
               <Row k="Maturity" v={p.maturityDate} />
             </div>
+            <StressSummary report={stress} />
             <div>
               <h3 className="mb-1 text-sm font-semibold">Fields that will be shared with the simulator</h3>
               <ul className="divide-y divide-stone-100 rounded-lg border border-stone-200 text-sm">
@@ -116,6 +125,14 @@ export function ReviewDialog({ action, open, onOpenChange }: { action: PendingAc
               <input type="checkbox" className="mt-1" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} />
               <span>I reviewed these exact terms and shared fields. I understand this is a sandbox simulation with no real loan, payment, or lender submission.</span>
             </label>
+            {weak ? (
+              <label className="flex items-start gap-2 text-sm">
+                <input type="checkbox" className="mt-1" checked={riskAcknowledged} onChange={(e) => setRiskAcknowledged(e.target.checked)} />
+                <span>
+                  I understand these terms fail {stress.total - stress.passed} of {stress.total} stress scenarios, so cash could go negative before repayment if the season goes worse than planned.
+                </span>
+              </label>
+            ) : null}
             <TruthNote>Any edit to the draft, records, or catalog invalidates this confirmation and requires a new review.</TruthNote>
             {client.mode === 'guided_local' ? <TruthNote>Guided mode: the receipt is generated in this browser only.</TruthNote> : null}
           </div>
@@ -129,7 +146,7 @@ export function ReviewDialog({ action, open, onOpenChange }: { action: PendingAc
               <Button variant="outline" onClick={cancel} disabled={busy}>
                 Cancel submission
               </Button>
-              <Button onClick={confirm} disabled={busy || expired || !acknowledged || action.status !== 'pending'}>
+              <Button onClick={confirm} disabled={busy || expired || !acknowledged || (weak && !riskAcknowledged) || action.status !== 'pending'}>
                 Confirm sandbox submission
               </Button>
             </>
@@ -137,6 +154,50 @@ export function ReviewDialog({ action, open, onOpenChange }: { action: PendingAc
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function StressSummary({ report }: { report: StressReport | null }) {
+  if (!report) {
+    return (
+      <Alert variant="neutral">
+        <AlertTriangle aria-hidden />
+        <div>Stress test unavailable for these terms. Review the forecast before confirming.</div>
+      </Alert>
+    );
+  }
+  if (report.verdict === 'resilient') {
+    return (
+      <Alert variant="success" data-testid="review-stress">
+        <ShieldCheck aria-hidden />
+        <div>
+          <strong>Stress test: survives {report.passed} of {report.total} adverse scenarios.</strong> Cash stays non-negative through maturity in every scenario. Scenarios are assumptions, not predictions.
+        </div>
+      </Alert>
+    );
+  }
+  return (
+    <Alert variant={report.verdict === 'fragile' ? 'danger' : 'warning'} data-testid="review-stress">
+      <AlertTriangle aria-hidden />
+      <div className="space-y-1.5">
+        <p>
+          <strong>
+            Repayment risk: these exact terms survive only {report.passed} of {report.total} adverse scenarios.
+          </strong>
+        </p>
+        <ul className="space-y-0.5">
+          {report.results.map((r) => (
+            <li key={r.scenarioId} className="flex items-center gap-1.5">
+              {r.passes ? <CheckCircle2 className="size-3.5 text-emerald-700" aria-hidden /> : <XCircle className="size-3.5 text-red-700" aria-hidden />}
+              <span>
+                {r.label}: {r.passes ? 'passes' : 'cash goes negative'}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p>Safer: set the financing target to “Gap + buffer” on the Financing page and draft again. Scenarios are assumptions, not predictions.</p>
+      </div>
+    </Alert>
   );
 }
 

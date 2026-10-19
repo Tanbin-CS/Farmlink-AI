@@ -4,7 +4,7 @@ Follow the stricter combined package. Upload early, because updates are allowed 
 
 | # | Item | Status | Where / notes |
 | --- | --- | --- | --- |
-| 1 | Technical documentation (architecture, core algorithm, security design) | Draft in repo | `docs/ARCHITECTURE.md`, `docs/SECURITY_ASSESSMENT.md`. Copy into the official template `international-technical-document-en.docx` |
+| 1 | Technical documentation (architecture, core algorithm, security design) | Done, fill in team name | `docs/submission/FarmLink-AI-Technical-Document.docx` (official template structure) and `.pdf`; sources: `docs/ARCHITECTURE.md`, `docs/SECURITY_ASSESSMENT.md` |
 | 2 | Presentation deck (≤ 10 min, English) | To do | Problem → Topic E fit → demo flow → architecture → agent guardrails → tests → limits/roadmap |
 | 3 | Demo video (≤ 5 min, English) | To record | `docs/DEMO_SCRIPT.md`. Must show a real end-to-end run and one blocked unsafe action |
 | 4 | Source code with README, GitHub link, deployment instructions, test cases | Done | https://github.com/Tanbin-CS/Farmlink-AI. Fill in the official README template if required |

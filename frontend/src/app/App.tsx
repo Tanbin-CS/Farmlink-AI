@@ -1,6 +1,7 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { SandboxProvider } from '@/state/SandboxProvider';
+import { PreferencesProvider } from '@/state/PreferencesProvider';
 import { AppShell } from './AppShell';
 import { Landing } from '@/features/landing/Landing';
 import { SetupPage } from '@/features/setup/SetupPage';
@@ -35,11 +36,13 @@ export function AppRoutes() {
 
 export function App({ client }: { client?: SandboxClient }) {
   return (
-    <SandboxProvider initialClient={client}>
-      <HashRouter>
-        <AppRoutes />
-      </HashRouter>
-      <Toaster richColors position="top-center" closeButton />
-    </SandboxProvider>
+    <PreferencesProvider>
+      <SandboxProvider initialClient={client}>
+        <HashRouter>
+          <AppRoutes />
+        </HashRouter>
+        <Toaster richColors position="top-center" offset={64} mobileOffset={64} closeButton />
+      </SandboxProvider>
+    </PreferencesProvider>
   );
 }

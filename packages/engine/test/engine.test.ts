@@ -18,6 +18,12 @@ import {
   validateBundle,
   validateCsvRows,
   canonicalJson,
+  convertMinor,
+  DEFAULT_REFERENCE_RATES,
+  formatMoney,
+  applyScenario,
+  stressTestOption,
+  STRESS_PRESETS,
   type CashEvent,
   type FinancingProduct,
   type Workspace,
@@ -59,9 +65,11 @@ describe('money', () => {
     expect(divRoundHalfUp(15n, 10n)).toBe(2n);
     expect(divRoundHalfUp(25n, 10n)).toBe(3n);
   });
-  it('formats with lakh grouping', () => {
+  it('formats with lakh or international grouping', () => {
     expect(formatBDT('123456789')).toBe('BDT 12,34,567.89');
     expect(formatBDT('-50000')).toBe('-BDT 500.00');
+    expect(formatMoney('123456789', 'USD')).toBe('USD 1,234,567.89');
+    expect(formatMoney('123456789', 'EUR', { decimals: false })).toBe('EUR 1,234,568');
   });
   it('rejects oversized and malformed minor strings', () => {
     expect(isMoneyMinor('100')).toBe(true);
@@ -233,7 +241,7 @@ describe('validation and CSV', () => {
 
   it('rejects invalid CSV money, dates, direction, and status as a batch', () => {
     const res = validateCsvRows([
-      { id: 'a', direction: 'inflow', category: 'sales_receipt', amount_bdt: '100.50', date: '2026-10-21', status: 'planned', description: 'ok', source_ref: 'r' },
+      { id: 'a', direction: 'inflow', category: 'sales_receipt', amount: '100.50', date: '2026-10-21', status: 'planned', description: 'ok', source_ref: 'r' },
       { id: 'b', direction: 'sideways', category: 'sales_receipt', amount_bdt: '1', date: '2026-10-21', status: 'planned', description: '', source_ref: '' },
       { id: 'c', direction: 'inflow', category: 'sales_receipt', amount_bdt: '1.999', date: '2026-10-21', status: 'planned', description: '', source_ref: '' },
       { id: 'd', direction: 'inflow', category: 'sales_receipt', amount_bdt: '1', date: '2026-02-30', status: 'planned', description: '', source_ref: '' },
@@ -248,5 +256,68 @@ describe('validation and CSV', () => {
   it('neutralizes spreadsheet formula injection on export', () => {
     const csv = eventsToCsv([{ ...ev('x', 1, 'inflow', 1), description: '=HYPERLINK("http://evil")' }]);
     expect(csv).toContain(`"'=HYPERLINK(""http://evil"")"`);
+  });
+});
+
+describe('currencies and display conversion', () => {
+  it('converts for display via BDT reference rates with half-up rounding', () => {
+    // 425,000.00 BDT / 123.7054 = 3,435.58 -> USD 3,435.60
+    expect(convertMinor('42500000', 'BDT', 'USD', DEFAULT_REFERENCE_RATES)).toBe('343558');
+    expect(convertMinor('343558', 'USD', 'BDT', DEFAULT_REFERENCE_RATES)).toBe('42499980');
+    expect(convertMinor('-100', 'BDT', 'BDT', DEFAULT_REFERENCE_RATES)).toBe('-100');
+    expect(() => convertMinor('1', 'BDT', 'USD', { USD: 'abc', EUR: '1' })).toThrow();
+  });
+
+  it('never compares products across currencies', () => {
+    const cmp = compareFinancing(demoWorkspace(AS_OF, 'ws', 'USD'), demoEvents(AS_OF, 'USD'), demoCatalog('BDT'), 1);
+    expect(cmp.bestFitProductId).toBeNull();
+    expect(cmp.evaluations.every((e) => e.reasons.includes('CURRENCY_MISMATCH'))).toBe(true);
+  });
+
+  it.each(['USD', 'EUR'] as const)('the %s demo variant tells the same story', (cur) => {
+    const cmp = compareFinancing(demoWorkspace(AS_OF, 'ws', cur), demoEvents(AS_OF, cur), demoCatalog(cur), 1);
+    const byId = Object.fromEntries(cmp.evaluations.map((e) => [e.productId, e]));
+    expect(cmp.bestFitProductId).toBe('sbx-seasonal-a');
+    expect(byId['sbx-working-b']!.status).toBe('fits');
+    expect(byId['sbx-supplier-c']!.reasons).toContain('DELAYED_DISBURSEMENT');
+    expect(byId['sbx-short-d']!.reasons).toContain('SHORTAGE_AFTER_REPAYMENT');
+    expect(byId['sbx-harvest-e']!.reasons).toContain('INCOMPLETE_HORIZON');
+    expect(byId['sbx-group-g']!.reasons).toContain('FUNDING_CAP');
+  });
+});
+
+describe('scenarios and repayment stress test', () => {
+  it('changes only planned events and leaves settled history untouched', () => {
+    const evs = [ev('s', -2, 'inflow', 100, 'settled'), ev('p', 5, 'inflow', 100), ev('c', 3, 'outflow', 100)];
+    const out = applyScenario(evs, { id: 'x', label: 'x', salesDelayDays: 7, salesChangePct: -20, costChangePct: 10 });
+    expect(out[0]).toEqual(evs[0]);
+    expect(out[1]!.date).toBe(addDays(AS_OF, 12));
+    expect(out[1]!.amountMinor).toBe('8000');
+    expect(out[2]!.amountMinor).toBe('11000');
+  });
+
+  it('clamps scenario inputs to documented limits', () => {
+    const out = applyScenario([ev('p', 1, 'inflow', 100)], { id: 'x', label: 'x', salesDelayDays: 0, salesChangePct: -500, costChangePct: 0 });
+    expect(out[0]!.amountMinor).toBe('2000');
+  });
+
+  it('stress-tests the recommended demo option deterministically', () => {
+    const w = demoWorkspace(AS_OF);
+    const events = demoEvents(AS_OF);
+    const cmp = compareFinancing(w, events, demoCatalog(), 1);
+    const best = cmp.evaluations.find((e) => e.productId === cmp.bestFitProductId)!;
+    const report = stressTestOption(w, events, best)!;
+    expect(report.total).toBe(STRESS_PRESETS.length);
+    expect(report.results.map((r) => r.scenarioId)).toEqual(STRESS_PRESETS.map((s) => s.id));
+    // Costs +15% deepen the gap beyond the drafted principal: must be flagged, not hidden.
+    expect(report.results.find((r) => r.scenarioId === 'costs_up_15')!.passes).toBe(false);
+    expect(['resilient', 'partly_resilient', 'fragile']).toContain(report.verdict);
+    expect(canonicalJson(stressTestOption(w, events, best))).toBe(canonicalJson(report));
+  });
+
+  it('returns null for options without a quote', () => {
+    const w = demoWorkspace(AS_OF);
+    const cmp = compareFinancing(w, demoEvents(AS_OF), demoCatalog(), 1);
+    expect(stressTestOption(w, demoEvents(AS_OF), cmp.evaluations.find((e) => e.productId === 'sbx-template-f')!)).toBeNull();
   });
 });

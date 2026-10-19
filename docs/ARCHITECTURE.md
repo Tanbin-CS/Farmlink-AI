@@ -87,6 +87,23 @@ net(P) = P − fee(P)
 
 Ranking among fits uses lowest total modeled cost, then lowest repayment, then ID.
 
+**Financing target**: `workspace.financingTarget` is either `gap` (the default, which covers the shortfall down to zero) or `gap_plus_buffer` (which also restores the minimum cash buffer).
+
+**Scenarios and the repayment stress test** (`scenario.ts`):
+
+- `applyScenario` changes only **planned** events: it shifts sales receipts later by N days and scales sales and operating costs by a percentage, using integer half-up rounding.
+- `stressTestOption` holds the drafted loan fixed (principal, funding date, due date). It extends the horizon to maturity and checks that closing cash stays at or above zero under each preset:
+  - harvest 14 days late;
+  - sales −20%;
+  - costs +15%;
+  - combined: 10 days late, sales −10%, costs +10%.
+- Each option gets a verdict of `resilient`, `partly_resilient` or `fragile`.
+
+**Currencies** (`money.ts`, `fx.ts`):
+
+- Workspace and product currencies are BDT, USD or EUR, and comparisons only ever use the same currency.
+- `convertMinor` converts through BDT using user-editable reference rates, scaled to 4 decimals. It is used only for "≈" display.
+
 ## Agent run (live mode)
 
 ```mermaid

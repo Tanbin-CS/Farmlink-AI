@@ -7,6 +7,7 @@ export type FitStatus = 'fits' | 'does_not_fit' | 'needs_information';
 
 export type ReasonCode =
   | 'NO_FUNDING_GAP'
+  | 'CURRENCY_MISMATCH'
   | 'MISSING_TERMS'
   | 'UNSUPPORTED_COST_STRUCTURE'
   | 'INELIGIBLE_BUSINESS_TYPE'
@@ -18,6 +19,7 @@ export type ReasonCode =
 
 export const REASON_TEXT: Record<ReasonCode, string> = {
   NO_FUNDING_GAP: 'No negative cash is projected in the window, so no financing is needed.',
+  CURRENCY_MISMATCH: 'Product currency differs from the workspace currency; amounts are never converted silently.',
   MISSING_TERMS: 'Essential cost or term fields are unknown; this option cannot be costed or ranked.',
   UNSUPPORTED_COST_STRUCTURE: 'Repayment structure is not supported by this prototype model (simple interest, one bullet repayment).',
   INELIGIBLE_BUSINESS_TYPE: 'Business type is not in the product’s stated eligibility.',
@@ -58,6 +60,9 @@ export interface FinancingComparison {
   workspaceVersion: number;
   catalogVersion: number;
   fundingGapMinor: MoneyMinor;
+  /** Net cash each option must provide (gap, or gap plus buffer). */
+  requiredNetCashMinor: MoneyMinor;
+  financingTarget: Workspace['financingTarget'];
   earliestNegativeDate: CivilDate | null;
   evaluations: ProductEvaluation[];
   bestFitProductId: string | null;
@@ -116,6 +121,11 @@ function hasCompleteTerms(p: FinancingProduct): boolean {
   return p.annualSimpleRateBps !== null && p.upfrontFeeBps !== null && p.upfrontFixedFeeMinor !== null && p.termDays !== null;
 }
 
+/** Net cash the financing must provide, per the workspace's financing target. */
+export function financingNeed(workspace: Pick<Workspace, 'financingTarget'>, baseline: CashflowResult): bigint {
+  return toBig(workspace.financingTarget === 'gap_plus_buffer' ? baseline.bufferShortfallMinor : baseline.fundingGapMinor);
+}
+
 export function evaluateProduct(
   workspace: Workspace,
   events: CashEvent[],
@@ -136,11 +146,12 @@ export function evaluateProduct(
     minClosingWithFinancingMinor: null,
     rank: null,
   };
-  const gap = toBig(baseline.fundingGapMinor);
+  const gap = financingNeed(workspace, baseline);
   if (gap === 0n) return { ...base, status: 'does_not_fit', reasons: ['NO_FUNDING_GAP'] };
 
   const hard: ReasonCode[] = [];
   const info: ReasonCode[] = [];
+  if (product.currency !== workspace.currency) hard.push('CURRENCY_MISMATCH');
   if (product.repaymentType !== SUPPORTED_REPAYMENT_TYPE) hard.push('UNSUPPORTED_COST_STRUCTURE');
   if (!product.eligibleBusinessTypes.includes(workspace.businessType)) hard.push('INELIGIBLE_BUSINESS_TYPE');
   if (!hasCompleteTerms(product)) info.push('MISSING_TERMS');
@@ -207,7 +218,7 @@ export function compareFinancing(
   for (const e of evaluations) if (e.status === 'fits') e.rank = ++rank;
   const best = evaluations.find((e) => e.status === 'fits') ?? null;
   const notes: string[] = [];
-  if (toBig(baseline.fundingGapMinor) === 0n) notes.push('No funding gap is projected in the window. There is no pressure to borrow.');
+  if (financingNeed(workspace, baseline) === 0n) notes.push(workspace.financingTarget === 'gap_plus_buffer' ? 'Cash stays above the minimum buffer in the window. There is no pressure to borrow.' : 'No funding gap is projected in the window. There is no pressure to borrow.');
   else if (!best) notes.push('No option fits the stated sandbox rules. Review reason codes or add missing information.');
   else notes.push(`${best.productName} has the lowest modeled cost among the comparable options provided.`);
   return {
@@ -215,6 +226,8 @@ export function compareFinancing(
     workspaceVersion: workspace.version,
     catalogVersion,
     fundingGapMinor: baseline.fundingGapMinor,
+    requiredNetCashMinor: fromBig(financingNeed(workspace, baseline)),
+    financingTarget: workspace.financingTarget,
     earliestNegativeDate: baseline.earliestNegativeDate,
     evaluations,
     bestFitProductId: best?.productId ?? null,

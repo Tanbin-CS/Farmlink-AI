@@ -2,6 +2,8 @@ import type {
   ApplicationDraft,
   CashEvent,
   CashflowResult,
+  CurrencyCode,
+  StressReport,
   EvidenceBundle,
   FinancingComparison,
   FinancingProduct,
@@ -116,8 +118,11 @@ export class CloudSandboxClient implements SandboxClient {
   saveCatalog(catalog: FinancingProduct[]) {
     return this.call<SandboxSnapshot>('/v1/catalog', { method: 'PUT', body: JSON.stringify({ catalog }) });
   }
-  loadDemo() {
-    return this.call<SandboxSnapshot>('/v1/demo', { method: 'POST', body: '{}' });
+  loadDemo(currency: CurrencyCode = 'BDT') {
+    return this.call<SandboxSnapshot>('/v1/demo', { method: 'POST', body: JSON.stringify({ currency }) });
+  }
+  stressTest(productId: string) {
+    return this.call<StressReport>('/v1/analysis/stress', { method: 'POST', body: JSON.stringify({ productId }) });
   }
   importBundle(bundle: WorkspaceBundle) {
     return this.call<SandboxSnapshot>('/v1/workspace/import', { method: 'POST', body: JSON.stringify({ bundle }) });

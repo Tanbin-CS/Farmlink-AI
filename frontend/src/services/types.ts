@@ -4,12 +4,14 @@ import type {
   ApprovalDecision,
   CashEvent,
   CashflowResult,
+  CurrencyCode,
   EvidenceBundle,
   ExecutionMode,
   FinancingComparison,
   FinancingProduct,
   PendingAction,
   SandboxReceipt,
+  StressReport,
   ToolEvent,
   Workspace,
 } from '@farmlink/engine';
@@ -50,9 +52,10 @@ export interface SandboxClient {
   deleteEvent(id: string): Promise<SandboxSnapshot>;
   importEvents(events: CashEvent[]): Promise<SandboxSnapshot>;
   saveCatalog(catalog: FinancingProduct[]): Promise<SandboxSnapshot>;
-  loadDemo(): Promise<SandboxSnapshot>;
+  loadDemo(currency?: CurrencyCode): Promise<SandboxSnapshot>;
   analyzeCashflow(actor: 'user' | 'guided'): Promise<CashflowResult>;
   compareFinancing(actor: 'user' | 'guided'): Promise<FinancingComparison>;
+  stressTest(productId: string, actor: 'user' | 'guided'): Promise<StressReport>;
   createDraft(productId: string, purpose: string, actor: 'user' | 'guided'): Promise<ApplicationDraft>;
   updateDraftPurpose(applicationId: string, purpose: string): Promise<ApplicationDraft>;
   prepare(applicationId: string, actor: 'user' | 'guided'): Promise<PendingAction>;

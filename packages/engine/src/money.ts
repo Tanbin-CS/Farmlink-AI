@@ -47,7 +47,7 @@ export function divRoundHalfUp(numerator: bigint, denominator: bigint): bigint {
  * Rejects more than two decimals, exponents, and anything outside the supported range.
  */
 export function parseMajor(input: string, opts: { allowNegative?: boolean } = {}): MoneyMinor {
-  const cleaned = input.trim().replace(/,/g, '').replace(/^(BDT|৳)\s*/i, '');
+  const cleaned = input.trim().replace(/,/g, '').replace(/^(BDT|USD|EUR|৳|\$|€)\s*/i, '');
   const m = /^(-)?(\d{1,15})(?:\.(\d{1,2}))?$/.exec(cleaned);
   if (!m) throw new MoneyError('Enter an amount like 12500 or 12500.50 (max two decimals)');
   const [, sign, whole, frac = ''] = m;
@@ -55,6 +55,10 @@ export function parseMajor(input: string, opts: { allowNegative?: boolean } = {}
   const minor = BigInt(whole!) * 100n + BigInt(frac.padEnd(2, '0'));
   return fromBig(sign ? -minor : minor);
 }
+
+export type CurrencyCode = 'BDT' | 'USD' | 'EUR';
+export const CURRENCIES: readonly CurrencyCode[] = ['BDT', 'USD', 'EUR'] as const;
+export type DigitGrouping = 'international' | 'south_asian';
 
 /** Group digits in the South Asian lakh/crore style: 12,34,56,789. */
 function groupLakh(digits: string): string {
@@ -70,14 +74,31 @@ function groupLakh(digits: string): string {
   return `${parts.join(',')},${last3}`;
 }
 
-export function formatBDT(value: MoneyMinor | bigint, opts: { withSymbol?: boolean } = {}): string {
+/** Group digits in thousands: 1,234,567. */
+function groupThousands(digits: string): string {
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+export function formatMoney(
+  value: MoneyMinor | bigint,
+  currency: CurrencyCode,
+  opts: { withSymbol?: boolean; grouping?: DigitGrouping; decimals?: boolean } = {},
+): string {
   const v = typeof value === 'bigint' ? value : toBig(value);
   const neg = v < 0n;
   const abs = neg ? -v : v;
-  const whole = (abs / 100n).toString();
+  const showDecimals = opts.decimals ?? true;
+  const wholeBig = showDecimals ? abs / 100n : (abs + 50n) / 100n;
+  const whole = wholeBig.toString();
   const frac = (abs % 100n).toString().padStart(2, '0');
-  const prefix = opts.withSymbol === false ? '' : 'BDT ';
-  return `${neg ? '-' : ''}${prefix}${groupLakh(whole)}.${frac}`;
+  const grouped = (opts.grouping ?? 'international') === 'south_asian' ? groupLakh(whole) : groupThousands(whole);
+  const prefix = opts.withSymbol === false ? '' : `${currency} `;
+  return `${neg ? '-' : ''}${prefix}${grouped}${showDecimals ? `.${frac}` : ''}`;
+}
+
+/** BDT formatting with the South Asian (lakh) grouping customary in Bangladesh. */
+export function formatBDT(value: MoneyMinor | bigint, opts: { withSymbol?: boolean } = {}): string {
+  return formatMoney(value, 'BDT', { ...opts, grouping: 'south_asian' });
 }
 
 /** Major-unit string without grouping, suitable for form inputs. */

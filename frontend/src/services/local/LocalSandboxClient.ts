@@ -15,7 +15,9 @@ import {
   demoWorkspace,
   DEMO_CATALOG_VERSION,
   ENGINE_VERSION,
-  formatBDT,
+  formatMoney,
+  stressTestOption,
+  type CurrencyCode,
   preparePendingAction,
   projectCashflow,
   randomId,
@@ -273,20 +275,20 @@ export class LocalSandboxClient implements SandboxClient {
     });
   }
 
-  loadDemo(): Promise<SandboxSnapshot> {
+  loadDemo(currency: CurrencyCode = 'BDT'): Promise<SandboxSnapshot> {
     return this.mutate(() => {
       const asOf = todayInBusinessZone();
       const prevVersion = this.state.workspace?.version ?? 0;
       this.state = {
         ...emptySnapshot(),
-        workspace: { ...demoWorkspace(asOf), version: prevVersion + 1 },
-        events: demoEvents(asOf),
-        catalog: demoCatalog(),
+        workspace: { ...demoWorkspace(asOf, 'ws_demo', currency), version: prevVersion + 1 },
+        events: demoEvents(asOf, currency),
+        catalog: demoCatalog(currency),
         catalogVersion: Math.max(DEMO_CATALOG_VERSION, this.state.catalogVersion + 1),
         toolEvents: this.state.toolEvents,
       };
       this.currentRunId = randomId('run');
-      this.log('user', 'load_demo_scenario', { asOfDate: asOf }, 'allowed', 'Loaded fictional sandbox demo scenario (sandbox_fixture).');
+      this.log('user', 'load_demo_scenario', { asOfDate: asOf, currency }, 'allowed', `Loaded fictional sandbox demo scenario in ${currency} (sandbox_fixture).`);
       return this.snapshot();
     });
   }
@@ -301,8 +303,8 @@ export class LocalSandboxClient implements SandboxClient {
         { asOfDate: ws.asOfDate, forecastDays: ws.forecastDays },
         'allowed',
         r.earliestNegativeDate
-          ? `Gap ${formatBDT(r.fundingGapMinor)}; first negative ${r.earliestNegativeDate}; ${r.alerts.length} alert day(s).`
-          : `No negative cash projected; minimum ${formatBDT(r.minClosingMinor)}.`,
+          ? `Gap ${formatMoney(r.fundingGapMinor, ws.currency)}; first negative ${r.earliestNegativeDate}; ${r.alerts.length} alert day(s).`
+          : `No negative cash projected; minimum ${formatMoney(r.minClosingMinor, ws.currency)}.`,
       );
       return r;
     });
@@ -315,6 +317,19 @@ export class LocalSandboxClient implements SandboxClient {
       const fits = c.evaluations.filter((e) => e.status === 'fits').length;
       this.log(actor, 'match_financing_options', { products: this.state.catalog.length }, 'allowed', `${fits} option(s) fit stated sandbox rules; best: ${c.bestFitProductId ?? 'none'}.`);
       return c;
+    });
+  }
+
+  stressTest(productId: string, actor: 'user' | 'guided') {
+    return this.mutate(() => {
+      const ws = this.requireWorkspace();
+      const c = compareFinancing(ws, this.state.events, this.state.catalog, this.state.catalogVersion);
+      const ev = c.evaluations.find((e) => e.productId === productId);
+      if (!ev) throw new ClientError('NOT_FOUND', 'Product not found in the current catalog.', 404);
+      const report = stressTestOption(ws, this.state.events, ev);
+      if (!report) throw new ClientError('NOT_COSTED', 'This option has no complete quote to stress-test.', 422);
+      this.log(actor, 'run_stress_test', { productId }, 'allowed', `${report.passed}/${report.total} stress scenarios keep cash non-negative through maturity (${report.verdict}).`);
+      return report;
     });
   }
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { formatBDT, REASON_TEXT, type PendingAction, type ToolPolicy } from '@farmlink/engine';
+import { formatMoney, REASON_TEXT, type CurrencyCode, type PendingAction, type ToolPolicy } from '@farmlink/engine';
 import type { Ctx, SandboxService } from '../services/sandbox';
 import type { ToolSpec } from './provider';
 
@@ -16,7 +16,7 @@ interface ToolDef<A> {
   run: (svc: SandboxService, ctx: Ctx, args: A) => Promise<ToolExecution>;
 }
 
-const money = (minor: string) => ({ minor, bdt: formatBDT(minor) });
+const moneyIn = (currency: CurrencyCode) => (minor: string) => ({ minor, formatted: formatMoney(minor, currency) });
 
 const noArgs = z.object({}).strict();
 
@@ -40,11 +40,13 @@ const TOOLS = {
     args: z.object({ status: z.enum(['planned', 'settled', 'cancelled']).optional(), limit: z.number().int().min(1).max(100).optional() }).strict(),
     run: async (svc, ctx, args) => {
       const r = await svc.getRecords(ctx, args);
+      const money = moneyIn(r.workspace.currency);
       return {
         policy: 'allowed',
         output: {
           workspace: {
             businessType: r.workspace.businessType,
+            currency: r.workspace.currency,
             asOfDate: r.workspace.asOfDate,
             forecastDays: r.workspace.forecastDays,
             openingCash: money(r.workspace.openingCashMinor),
@@ -73,6 +75,7 @@ const TOOLS = {
     args: noArgs,
     run: async (svc, ctx) => {
       const r = await svc.analyzeCashflow(ctx);
+      const money = moneyIn(await svc.currency(ctx));
       return {
         policy: 'allowed',
         output: {
@@ -104,10 +107,13 @@ const TOOLS = {
     args: noArgs,
     run: async (svc, ctx) => {
       const c = await svc.compareFinancing(ctx);
+      const money = moneyIn(await svc.currency(ctx));
       return {
         policy: 'allowed',
         output: {
           fundingGap: money(c.fundingGapMinor),
+          requiredNetCash: money(c.requiredNetCashMinor),
+          financingTarget: c.financingTarget,
           earliestNegativeDate: c.earliestNegativeDate,
           bestFitProductId: c.bestFitProductId,
           notes: c.notes,
@@ -138,6 +144,31 @@ const TOOLS = {
     },
   } satisfies ToolDef<Record<string, never>>,
 
+  run_stress_test: {
+    spec: {
+      name: 'run_stress_test',
+      description:
+        'Repayment stress check for one costed option: keeps the loan fixed and tests harvest delay, lower sales, higher costs, and a combined scenario. Pass = cash never below zero through maturity.',
+      parameters: { type: 'object', properties: { productId: { type: 'string' } }, required: ['productId'] },
+    },
+    args: z.object({ productId: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/) }).strict(),
+    run: async (svc, ctx, args) => {
+      const r = await svc.stressTest(ctx, args.productId);
+      const money = moneyIn(await svc.currency(ctx));
+      return {
+        policy: 'allowed',
+        output: {
+          productId: r.productId,
+          verdict: r.verdict,
+          passed: r.passed,
+          total: r.total,
+          scenarios: r.results.map((x) => ({ scenario: x.label, passes: x.passes, lowestCashWithLoan: money(x.minClosingWithFinancingMinor), gapWithoutLoan: money(x.stressedGapMinor) })),
+          note: 'Scenarios are assumptions, not predictions.',
+        },
+      };
+    },
+  } satisfies ToolDef<{ productId: string }>,
+
   create_application_draft: {
     spec: {
       name: 'create_application_draft',
@@ -151,6 +182,7 @@ const TOOLS = {
     args: z.object({ productId: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/), purpose: z.string().max(200).optional() }).strict(),
     run: async (svc, ctx, args) => {
       const d = await svc.createDraft(ctx, args.productId, args.purpose ?? '');
+      const money = moneyIn(await svc.currency(ctx));
       return {
         policy: 'allowed',
         output: { applicationId: d.id, status: d.status, productId: d.productId, principal: money(d.quote.principalMinor), totalCost: money(d.quote.totalFinancingCostMinor), draftVersion: d.version },

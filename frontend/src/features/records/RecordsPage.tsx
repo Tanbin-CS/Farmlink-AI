@@ -323,7 +323,7 @@ function EventEditor({ open, onOpenChange, initial, existingIds }: { open: boole
             </Select>
           </div>
           <div>
-            <Label htmlFor="e-amt">Amount (BDT, positive)</Label>
+            <Label htmlFor="e-amt">Amount ({snapshot?.workspace?.currency ?? 'BDT'}, positive)</Label>
             <Input id="e-amt" inputMode="decimal" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
           </div>
           <div>

@@ -1,5 +1,6 @@
 import { addDays, type CivilDate } from './dates';
 import { SCHEMA_VERSION, type CashEvent, type FinancingProduct, type Workspace } from './schemas';
+import type { CurrencyCode } from './money';
 
 /**
  * Sandbox fixture. Every name, amount, rate, and record below is fictional software test
@@ -10,18 +11,31 @@ export const DEMO_DISCLAIMER =
 
 export const DEMO_CATALOG_VERSION = 1;
 
-export function demoWorkspace(asOfDate: CivilDate, id = 'ws_demo'): Workspace {
+/**
+ * The fictional scenario is authored in BDT. USD and EUR variants divide every whole-unit
+ * amount by a fixed round factor so the same story reads naturally for international reviewers.
+ * The factors are scenario-authoring choices, not exchange rates.
+ */
+const DEMO_FACTOR: Record<CurrencyCode, number> = { BDT: 1, USD: 125, EUR: 140 };
+
+/** Whole BDT amount -> minor units of the demo currency. */
+function demoMinor(bdt: number, currency: CurrencyCode): string {
+  return String(Math.round(bdt / DEMO_FACTOR[currency]) * 100);
+}
+
+export function demoWorkspace(asOfDate: CivilDate, id = 'ws_demo', currency: CurrencyCode = 'BDT'): Workspace {
   return {
     schemaVersion: SCHEMA_VERSION,
     id,
     businessName: 'Sandbox Demo Cooperative (fictional)',
     businessType: 'cooperative',
-    currency: 'BDT',
+    currency,
     asOfDate,
-    openingCashMinor: '35000000',
-    minimumCashBufferMinor: '10000000',
+    openingCashMinor: demoMinor(350_000, currency),
+    minimumCashBufferMinor: demoMinor(100_000, currency),
     forecastDays: 90,
     evidenceAvailable: ['sales_records', 'purchase_order', 'cooperative_registration', 'trade_license'],
+    financingTarget: 'gap',
     version: 1,
     provenance: 'sandbox_fixture',
   };
@@ -48,12 +62,12 @@ const ROWS: Row[] = [
   [95, 'ev-016', 'inflow', 'sales_receipt', 150_000, 'planned', 'Straw and by-product sales (after forecast window)', 'Buyer note B-40 (fictional)'],
 ];
 
-export function demoEvents(asOfDate: CivilDate): CashEvent[] {
+export function demoEvents(asOfDate: CivilDate, currency: CurrencyCode = 'BDT'): CashEvent[] {
   return ROWS.map(([offset, id, direction, category, bdt, status, description, sourceRef]) => ({
     id,
     direction,
     category,
-    amountMinor: String(bdt * 100),
+    amountMinor: demoMinor(bdt, currency),
     date: addDays(asOfDate, offset),
     status,
     description,
@@ -64,13 +78,13 @@ export function demoEvents(asOfDate: CivilDate): CashEvent[] {
 
 const base = {
   classification: 'sandbox_product' as const,
-  currency: 'BDT' as const,
+  currency: 'BDT' as CurrencyCode,
   repaymentType: 'simple_interest_bullet',
   eligibleBusinessTypes: ['cooperative', 'agribusiness'] as FinancingProduct['eligibleBusinessTypes'],
 };
 
-export function demoCatalog(): FinancingProduct[] {
-  return [
+export function demoCatalog(currency: CurrencyCode = 'BDT'): FinancingProduct[] {
+  const bdtCatalog: FinancingProduct[] = [
     {
       ...base,
       id: 'sbx-seasonal-a',
@@ -175,7 +189,7 @@ export function demoCatalog(): FinancingProduct[] {
       termDays: 75,
       disbursementDelayDays: 2,
       requiredEvidence: ['cooperative_registration', 'member_list'],
-      limitations: ['Maximum principal BDT 3,00,000 in this sandbox scenario.'],
+      limitations: ['Maximum principal BDT 300,000 in this sandbox scenario.'],
     },
     {
       ...base,
@@ -194,4 +208,14 @@ export function demoCatalog(): FinancingProduct[] {
       limitations: ['Reducing-balance installments are not modeled by this prototype.'],
     },
   ];
+  if (currency === 'BDT') return bdtCatalog;
+  const conv = (minor: string | null) => (minor === null ? null : demoMinor(Number(BigInt(minor) / 100n), currency));
+  return bdtCatalog.map((p) => ({
+    ...p,
+    currency,
+    principalMinMinor: conv(p.principalMinMinor)!,
+    principalMaxMinor: conv(p.principalMaxMinor)!,
+    upfrontFixedFeeMinor: conv(p.upfrontFixedFeeMinor),
+    limitations: p.limitations.map((l) => l.replace('BDT 300,000', `${currency} ${(300_000 / DEMO_FACTOR[currency]).toLocaleString('en-US', { maximumFractionDigits: 0 })}`)),
+  }));
 }

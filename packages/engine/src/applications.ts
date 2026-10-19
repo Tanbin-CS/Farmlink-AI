@@ -1,4 +1,4 @@
-import { formatBDT, type MoneyMinor } from './money';
+import { formatMoney, type MoneyMinor } from './money';
 import type { CivilDate } from './dates';
 import type { CashflowResult } from './cashflow';
 import type { ProductEvaluation, Quote } from './financing';
@@ -153,10 +153,11 @@ export function sharedFieldsFor(
   return [
     { key: 'businessName', label: 'Business name', value: workspace.businessName },
     { key: 'businessType', label: 'Business type', value: workspace.businessType },
+    { key: 'currency', label: 'Currency', value: workspace.currency },
     { key: 'analysisWindow', label: 'Forecast window', value: `${baseline.window.start} to ${baseline.window.end}` },
-    { key: 'fundingGap', label: 'Projected funding gap', value: formatBDT(baseline.fundingGapMinor) },
+    { key: 'fundingGap', label: 'Projected funding gap', value: formatMoney(baseline.fundingGapMinor, workspace.currency) },
     { key: 'earliestNegativeDate', label: 'First negative-cash date', value: baseline.earliestNegativeDate ?? 'none' },
-    { key: 'requestedPrincipal', label: 'Requested principal', value: formatBDT(quote.principalMinor) },
+    { key: 'requestedPrincipal', label: 'Requested principal', value: formatMoney(quote.principalMinor, workspace.currency) },
     { key: 'purpose', label: 'Stated purpose', value: purpose },
     { key: 'recordCount', label: 'Cash records shared (IDs only)', value: String(recordCount) },
     { key: 'evidence', label: 'Evidence marked available', value: workspace.evidenceAvailable.join(', ') || 'none' },
@@ -380,6 +381,6 @@ export async function buildEvidenceBundle(input: Omit<EvidenceBundle, 'kind' | '
   return { ...body, contentHash: await payloadHash(body) };
 }
 
-export function moneyLabel(v: MoneyMinor): string {
-  return formatBDT(v);
+export function moneyLabel(v: MoneyMinor, currency: Workspace['currency'] = 'BDT'): string {
+  return formatMoney(v, currency);
 }

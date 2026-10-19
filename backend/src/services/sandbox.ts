@@ -15,7 +15,10 @@ import {
   demoWorkspace,
   DEMO_CATALOG_VERSION,
   ENGINE_VERSION,
-  formatBDT,
+  formatMoney,
+  stressTestOption,
+  type CurrencyCode,
+  type StressReport,
   preparePendingAction,
   projectCashflow,
   randomId,
@@ -241,15 +244,15 @@ export class SandboxService {
     });
   }
 
-  async loadDemo(ctx: Ctx): Promise<Snapshot> {
+  async loadDemo(ctx: Ctx, currency: CurrencyCode = 'BDT'): Promise<Snapshot> {
     return this.store.withSession(ctx.sessionId, async (tx) => {
       const b = await getBundle(tx);
       const asOf = todayInBusinessZone(this.now());
-      b.workspace = { ...demoWorkspace(asOf, workspaceIdFor(ctx.sessionId)), version: (b.workspace?.version ?? 0) + 1 };
-      b.events = demoEvents(asOf);
-      b.catalog = demoCatalog();
+      b.workspace = { ...demoWorkspace(asOf, workspaceIdFor(ctx.sessionId), currency), version: (b.workspace?.version ?? 0) + 1 };
+      b.events = demoEvents(asOf, currency);
+      b.catalog = demoCatalog(currency);
       b.catalogVersion = Math.max(DEMO_CATALOG_VERSION, b.catalogVersion + 1);
-      await this.log(tx, b, ctx, 'load_demo_scenario', { asOfDate: asOf }, 'allowed', 'Loaded fictional sandbox demo scenario (sandbox_fixture).');
+      await this.log(tx, b, ctx, 'load_demo_scenario', { asOfDate: asOf, currency }, 'allowed', `Loaded fictional sandbox demo scenario in ${currency} (sandbox_fixture).`);
       return this.snapshotTx(tx);
     });
   }
@@ -284,8 +287,8 @@ export class SandboxService {
         { asOfDate: ws.asOfDate, forecastDays: ws.forecastDays },
         'allowed',
         r.earliestNegativeDate
-          ? `Gap ${formatBDT(r.fundingGapMinor)}; first negative ${r.earliestNegativeDate}; ${r.alerts.length} alert day(s).`
-          : `No negative cash projected; minimum ${formatBDT(r.minClosingMinor)}.`,
+          ? `Gap ${formatMoney(r.fundingGapMinor, ws.currency)}; first negative ${r.earliestNegativeDate}; ${r.alerts.length} alert day(s).`
+          : `No negative cash projected; minimum ${formatMoney(r.minClosingMinor, ws.currency)}.`,
       );
       return r;
     });
@@ -299,6 +302,24 @@ export class SandboxService {
       const fits = c.evaluations.filter((e) => e.status === 'fits').length;
       await this.log(tx, b, ctx, 'match_financing_options', { products: b.catalog.length }, 'allowed', `${fits} option(s) fit stated sandbox rules; best: ${c.bestFitProductId ?? 'none'}.`);
       return c;
+    });
+  }
+
+  async currency(ctx: Ctx): Promise<CurrencyCode> {
+    return this.store.withSession(ctx.sessionId, async (tx) => (await getBundle(tx)).workspace?.currency ?? 'BDT');
+  }
+
+  async stressTest(ctx: Ctx, productId: string): Promise<StressReport> {
+    return this.store.withSession(ctx.sessionId, async (tx) => {
+      const b = await getBundle(tx);
+      const ws = requireWorkspace(b);
+      const c = compareFinancing(ws, b.events, b.catalog, b.catalogVersion);
+      const ev = c.evaluations.find((e) => e.productId === productId);
+      if (!ev) throw new ApiError(404, 'NOT_FOUND', 'Product not found in the current catalog.');
+      const report = stressTestOption(ws, b.events, ev);
+      if (!report) throw new ApiError(422, 'NOT_COSTED', 'This option has no complete quote to stress-test.');
+      await this.log(tx, b, ctx, 'run_stress_test', { productId }, 'allowed', `${report.passed}/${report.total} stress scenarios keep cash non-negative through maturity (${report.verdict}).`);
+      return report;
     });
   }
 

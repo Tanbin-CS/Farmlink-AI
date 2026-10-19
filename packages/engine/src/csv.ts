@@ -1,8 +1,10 @@
 import { CashEventSchema, LIMITS, type CashEvent } from './schemas';
 import { parseMajor, toMajorInput, MoneyError } from './money';
 
-/** Documented CSV columns. amount_bdt is a positive major-unit amount with at most two decimals. */
-export const CSV_COLUMNS = ['id', 'direction', 'category', 'amount_bdt', 'date', 'status', 'description', 'source_ref'] as const;
+/** Documented CSV columns. `amount` is a positive major-unit amount in the workspace currency (max two decimals). */
+export const CSV_COLUMNS = ['id', 'direction', 'category', 'amount', 'date', 'status', 'description', 'source_ref'] as const;
+/** Accepted legacy header names. */
+const ALIASES: Record<string, string> = { amount_bdt: 'amount' };
 
 export const CSV_TEMPLATE = `${CSV_COLUMNS.join(',')}\n`;
 
@@ -14,7 +16,7 @@ export interface CsvValidation {
 
 export function validateCsvHeaders(headers: string[]): string[] {
   const issues: string[] = [];
-  const normalized = headers.map((h) => h.trim());
+  const normalized = headers.map((h) => ALIASES[h.trim()] ?? h.trim());
   for (const c of CSV_COLUMNS) if (!normalized.includes(c)) issues.push(`Missing column: ${c}`);
   for (const h of normalized) if (h && !(CSV_COLUMNS as readonly string[]).includes(h)) issues.push(`Unknown column: ${h}`);
   return issues;
@@ -37,9 +39,9 @@ export function validateCsvRows(rows: Array<Record<string, string | undefined>>,
     const rowNo = i + 2; // header is row 1
     let amountMinor: string;
     try {
-      amountMinor = parseMajor(r.amount_bdt ?? '');
+      amountMinor = parseMajor(r.amount ?? r.amount_bdt ?? '');
     } catch (e) {
-      errors.push({ row: rowNo, message: `amount_bdt: ${e instanceof MoneyError ? e.message : 'invalid'}` });
+      errors.push({ row: rowNo, message: `amount: ${e instanceof MoneyError ? e.message : 'invalid'}` });
       return;
     }
     const candidate = {

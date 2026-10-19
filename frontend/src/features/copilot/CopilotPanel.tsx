@@ -2,11 +2,11 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart3, Bot, FileCheck2, Landmark, Loader2, Send, Wrench } from 'lucide-react';
 import {
-  formatBDT,
   REASON_TEXT,
   type CashflowResult,
   type FinancingComparison,
   type PendingAction,
+  type StressReport,
   type ToolEvent,
 } from '@farmlink/engine';
 import { useSandbox } from '@/state/SandboxProvider';
@@ -17,17 +17,24 @@ import { ModeBadge, StatusBadge, TruthNote } from '@/components/common';
 import { ReviewDialog } from '@/features/applications/ReviewDialog';
 import type { ChatTurn } from '@/services/types';
 import { cn } from '@/lib/utils';
+import { useMoney } from '@/lib/money';
+import { DemoLauncher } from '@/components/DemoLauncher';
 
 export function CopilotPanel() {
   const { client, snapshot } = useSandbox();
   const [view, setView] = useState<'chat' | 'tools'>('chat');
   const live = !!client.runAgent;
   return (
-    <section className="flex h-full flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-2 border-b border-stone-200 px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Bot className="size-5 text-brand-800" aria-hidden />
-          <h2 className="font-semibold">Copilot</h2>
+    <section className="flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[var(--shadow-card)] ring-1 ring-stone-200/80">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 bg-gradient-to-r from-brand-50 to-white px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          <span className="grid size-8 place-items-center rounded-xl bg-brand-gradient text-white shadow-sm">
+            <Bot className="size-4" aria-hidden />
+          </span>
+          <div className="leading-tight">
+            <h2 className="text-sm font-semibold">Copilot</h2>
+            <p className="text-[11px] text-stone-500">Prepares, never submits</p>
+          </div>
         </div>
         <ModeBadge mode={client.mode} />
       </div>
@@ -54,15 +61,14 @@ export function CopilotPanel() {
 }
 
 function NoWorkspace() {
-  const { run } = useSandbox();
   return (
-    <div className="space-y-3 text-sm">
-      <p>Start with a workspace. The demo scenario is a fictional cooperative with a seasonal cash gap before harvest.</p>
-      <Button className="w-full" onClick={() => run('Load demo', (c) => c.loadDemo(), { success: 'Sandbox demo scenario loaded.' })}>
-        Load sandbox demo scenario
-      </Button>
+    <div className="space-y-4 text-sm">
+      <div className="rounded-xl bg-brand-50 p-3 text-brand-950">
+        Hi! I help cooperatives plan cash and financing. Start with the fictional demo, which runs short of cash before harvest, or set up your own business.
+      </div>
+      <DemoLauncher className="w-full" />
       <Link to="/setup" className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}>
-        Set up my own workspace
+        Set up my own business
       </Link>
     </div>
   );
@@ -70,8 +76,10 @@ function NoWorkspace() {
 
 function GuidedSteps() {
   const { run, busy, snapshot, client } = useSandbox();
+  const { fmt } = useMoney();
   const [cash, setCash] = useState<CashflowResult | null>(null);
   const [cmp, setCmp] = useState<FinancingComparison | null>(null);
+  const [stress, setStress] = useState<StressReport | null>(null);
   const [productId, setProductId] = useState('');
   const [purpose, setPurpose] = useState('Seasonal working capital for seed and fertilizer before harvest');
   const [action, setAction] = useState<PendingAction | null>(null);
@@ -85,7 +93,10 @@ function GuidedSteps() {
   };
   const compare = async () => {
     const r = await run('Compare financing', (c) => c.compareFinancing('guided'));
-    if (r) setCmp(r);
+    if (r) {
+      setCmp(r);
+      setStress(r.bestFitProductId ? ((await run('Stress test', (c) => c.stressTest(r.bestFitProductId!, 'guided'), { silent: true })) ?? null) : null);
+    }
   };
   const prepare = async () => {
     if (!selected) return;
@@ -122,11 +133,11 @@ function GuidedSteps() {
             {cash.earliestNegativeDate ? (
               <>
                 Cash is projected to go negative on <strong>{cash.earliestNegativeDate}</strong>. Largest shortfall:{' '}
-                <strong>{formatBDT(cash.fundingGapMinor)}</strong>. {cash.alerts.filter((a) => a.level === 'critical').length} critical day(s).
+                <strong>{fmt(cash.fundingGapMinor, { decimals: false })}</strong>. {cash.alerts.filter((a) => a.level === 'critical').length} critical day(s).
               </>
             ) : (
               <>
-                No negative cash projected. Minimum balance {formatBDT(cash.minClosingMinor)} on {cash.minClosingDate}.
+                No negative cash projected. Minimum balance {fmt(cash.minClosingMinor, { decimals: false })} on {cash.minClosingDate}.
               </>
             )}{' '}
             <Link className="text-brand-800 underline" to="/cashflow">
@@ -148,11 +159,17 @@ function GuidedSteps() {
                 <li key={e.productId} className="flex flex-wrap items-center gap-1.5">
                   <StatusBadge status={e.status} />
                   <span className="font-medium">{e.productName}</span>
-                  {e.quote && e.status === 'fits' ? <span className="text-stone-600">cost {formatBDT(e.quote.totalFinancingCostMinor)}</span> : null}
+                  {e.quote && e.status === 'fits' ? <span className="text-stone-600">cost {fmt(e.quote.totalFinancingCostMinor, { decimals: false })}</span> : null}
                   {e.reasons[0] && e.status !== 'fits' ? <span className="text-xs text-stone-600">{REASON_TEXT[e.reasons[0]]}</span> : null}
                 </li>
               ))}
             </ul>
+            {stress ? (
+              <p className="mt-2 rounded-md bg-white p-2 text-xs">
+                Stress test of the cheapest option: survives <strong>{stress.passed}</strong> of {stress.total} adverse scenarios ({stress.verdict.replace('_', ' ')}).
+                {stress.passed < stress.total ? ' Consider borrowing enough to keep your buffer.' : ''}
+              </p>
+            ) : null}
             <Link className="mt-1 inline-block text-brand-800 underline" to="/financing">
               Full comparison
             </Link>

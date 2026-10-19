@@ -5,7 +5,7 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
   <input
     ref={ref}
     className={cn(
-      'flex h-9 w-full rounded-md border border-stone-300 bg-white px-3 py-1 text-sm shadow-xs placeholder:text-stone-400 disabled:opacity-50 aria-[invalid=true]:border-red-600',
+      'flex h-9 w-full rounded-lg border border-stone-300 bg-white px-3 py-1 text-sm shadow-xs transition-colors hover:border-stone-400 placeholder:text-stone-400 disabled:opacity-50 aria-[invalid=true]:border-red-600',
       className,
     )}
     {...props}
@@ -14,7 +14,7 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
 Input.displayName = 'Input';
 
 export const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(({ className, ...props }, ref) => (
-  <select ref={ref} className={cn('flex h-9 w-full rounded-md border border-stone-300 bg-white px-2 py-1 text-sm', className)} {...props} />
+  <select ref={ref} className={cn('flex h-9 w-full rounded-lg border border-stone-300 bg-white px-2 py-1 text-sm hover:border-stone-400', className)} {...props} />
 ));
 Select.displayName = 'Select';
 

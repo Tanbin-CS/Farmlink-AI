@@ -76,7 +76,6 @@ export function projectCashflow(
   events: CashEvent[],
   adjustments: ProjectionAdjustment[] = [],
 ): CashflowResult {
-  if (workspace.currency !== 'BDT') throw new Error('Only BDT workspaces are supported');
   const start = workspace.asOfDate;
   const end = addDays(start, workspace.forecastDays - 1);
   const buffer = toBig(workspace.minimumCashBufferMinor);

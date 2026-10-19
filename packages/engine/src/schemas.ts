@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isMoneyMinor } from './money';
+import { CURRENCIES, isMoneyMinor, type CurrencyCode } from './money';
 import { isCivilDate } from './dates';
 
 export const SCHEMA_VERSION = 1 as const;
@@ -40,6 +40,8 @@ export const EVIDENCE_TYPES = [
 export const EvidenceType = z.enum(EVIDENCE_TYPES);
 export type EvidenceType = z.infer<typeof EvidenceType>;
 
+export const Currency = z.enum(CURRENCIES as unknown as [CurrencyCode, ...CurrencyCode[]]);
+
 export const Provenance = z.enum(['owner_entered', 'redacted_example', 'sandbox_fixture']);
 
 export const WorkspaceSchema = z.object({
@@ -47,12 +49,14 @@ export const WorkspaceSchema = z.object({
   id: safeId,
   businessName: plainText(LIMITS.maxBusinessNameLength).pipe(z.string().min(1, 'Business name is required')),
   businessType: BusinessType,
-  currency: z.literal('BDT'),
+  currency: Currency,
   asOfDate: civilDate,
   openingCashMinor: moneyMinor,
   minimumCashBufferMinor: nonNegativeMoney,
   forecastDays: z.union([z.literal(30), z.literal(60), z.literal(90), z.literal(120)]),
   evidenceAvailable: z.array(EvidenceType).max(EVIDENCE_TYPES.length),
+  /** How much net cash financing should provide: cover the gap to zero, or also restore the buffer. */
+  financingTarget: z.enum(['gap', 'gap_plus_buffer']).default('gap'),
   version: z.number().int().nonnegative(),
   provenance: Provenance,
 });
@@ -79,7 +83,7 @@ export const FinancingProductSchema = z.object({
   classification: z.enum(['sandbox_product', 'public_reference']),
   sourceUrl: z.string().url().max(300).optional(),
   retrievedAt: civilDate.optional(),
-  currency: z.literal('BDT'),
+  currency: Currency,
   principalMinMinor: positiveMoney,
   principalMaxMinor: positiveMoney,
   /** null = unknown. Unknown terms are never treated as zero. */

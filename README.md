@@ -16,7 +16,15 @@ Cooperatives buy seed, fertilizer, and labour weeks before harvest receipts arri
 
 1. **Records → forecast.** You enter or import dated cash records, and the copilot projects daily closing cash. It flags low-cash and negative-cash days, the first shortfall date, and the funding gap.
 2. **Gap → financing match.** For each option it finds the smallest principal whose net proceeds cover the gap. It checks that funds arrive in time and re-projects cash with the repayment included. Each option is classed as **fits stated sandbox rules**, **does not fit**, or **needs information**, with explicit reason codes.
-3. **Match → consented sandbox application.** The copilot drafts an application and freezes the exact payload (SHA-256, 5-minute expiry). It then **stops**. Only a human pressing *Confirm* after reviewing the shared fields can submit to the internal lender simulator. Every step is logged and can be exported as evidence.
+3. **Stress test → resilient choice.** For each fitting option the drafted loan is held fixed and checked against a harvest delay, lower sales, higher costs, and a combined shock. A what-if panel lets users test their own scenarios, and they can choose to borrow enough to keep their minimum cash buffer.
+4. **Match → consented sandbox application.** The copilot drafts an application and freezes the exact payload (SHA-256, 5-minute expiry). It then **stops**. Only a human pressing *Confirm* after reviewing the shared fields can submit to the internal lender simulator. Every step is logged and can be exported as evidence.
+
+### International by design
+
+- Workspaces can be in **BDT, USD, or EUR**. A fictional demo is available in each currency.
+- Products in another currency are never compared silently; they get a `CURRENCY_MISMATCH` reason instead.
+- Every amount can also show an **approximate equivalent** in another currency, at an editable reference rate. The default is the Bangladesh Bank USD/BDT reference rate for 19 Oct 2026. This is for display only and never feeds a calculation.
+- Numbers use international grouping (1,234,567) by default, with lakh grouping (12,34,567) as an option.
 
 ### Two honest modes
 
@@ -31,7 +39,7 @@ Cooperatives buy seed, fertilizer, and labour weeks before harvest receipts arri
 | --- | --- |
 | **Task completion (40%)** | End-to-end financial task: records → cash-flow alerts → financing comparison → draft → human-confirmed sandbox submission → receipt → evidence export. Deterministic, tested engine. |
 | **Security & compliance (30%)** | Permission tiers; no model-callable confirm; allowlist and schema validation; payload binding, expiry, idempotency; session isolation; quotas and kill switch; prompt-injection tests; secret scanning; truth labels. See [SECURITY_ASSESSMENT](docs/SECURITY_ASSESSMENT.md). |
-| **Innovation & interaction (30%)** | One shared integer-money engine powers both the browser and the agent. The run timeline shows every tool proposal and policy decision. Reason-coded financing explanations. Mobile-friendly, with an accessible chart and table. |
+| **Innovation & interaction (30%)** | One shared integer-money engine powers both the browser and the agent. Repayment stress tests and an interactive what-if panel. A guided five-step journey with a progress sidebar. The run timeline shows every tool proposal and policy decision. Reason-coded explanations. Multi-currency display. Mobile app layout with a bottom tab bar; accessible chart plus table. |
 
 ## Quick start
 

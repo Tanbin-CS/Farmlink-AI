@@ -1,26 +1,29 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Sprout } from 'lucide-react';
+import { buttonVariants } from '@/components/ui/button';
 import { EmptyState } from '@/components/common';
+import { DemoLauncher } from '@/components/DemoLauncher';
 import { useSandbox } from '@/state/SandboxProvider';
 
 export function RequireWorkspace({ children }: { children: ReactNode }) {
-  const { snapshot, loading, run } = useSandbox();
-  if (loading) return <p className="text-sm text-stone-600">Loading workspace…</p>;
+  const { snapshot, loading } = useSandbox();
+  if (loading) return <div className="h-64 animate-pulse rounded-3xl bg-white/70" aria-label="Loading workspace" />;
   if (!snapshot?.workspace) {
     return (
       <EmptyState
-        title="No workspace yet"
+        title="Start with a workspace"
+        icon={Sprout}
         action={
-          <div className="flex flex-wrap justify-center gap-2">
-            <Button onClick={() => run('Load demo', (c) => c.loadDemo(), { success: 'Sandbox demo scenario loaded.' })}>Load sandbox demo scenario</Button>
-            <Link to="/setup" className={buttonVariants({ variant: 'outline' })}>
-              Set up my own
+          <div className="flex flex-col items-center gap-3">
+            <DemoLauncher />
+            <Link to="/setup" className={buttonVariants({ variant: 'link' })}>
+              or set up your own business
             </Link>
           </div>
         }
       >
-        Load the fictional demo cooperative or enter your own business profile. Nothing is pre-filled with invented balances.
+        Explore the fictional demo cooperative, which runs out of cash before harvest, or enter your own business. Nothing is pre-filled with invented balances.
       </EmptyState>
     );
   }

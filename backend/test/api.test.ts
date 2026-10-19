@@ -220,6 +220,38 @@ describe('cross-mode parity', () => {
   });
 });
 
+describe('currencies and stress test', () => {
+  it('loads the demo in USD and stress-tests an option through the API', async () => {
+    const { app } = setup();
+    const t = await session(app);
+    const snap = await request(app).post('/v1/demo').set(auth(t)).send({ currency: 'USD' });
+    expect(snap.body.workspace.currency).toBe('USD');
+    expect(snap.body.catalog.every((p: { currency: string }) => p.currency === 'USD')).toBe(true);
+    const st = await request(app).post('/v1/analysis/stress').set(auth(t)).send({ productId: 'sbx-seasonal-a' });
+    expect(st.status).toBe(200);
+    expect(st.body.total).toBe(4);
+    const bad = await request(app).post('/v1/analysis/stress').set(auth(t)).send({ productId: 'sbx-template-f' });
+    expect(bad.status).toBe(422);
+    const weird = await request(app).post('/v1/demo').set(auth(t)).send({ currency: 'JPY' });
+    expect(weird.status).toBe(422);
+  });
+
+  it('the agent can run the stress-test tool with currency-formatted output', async () => {
+    let seen: unknown = null;
+    const provider = new MockProvider((turn, results) => {
+      if (turn === 0) return { text: '', calls: [{ name: 'run_stress_test', args: { productId: 'sbx-seasonal-a' } }] };
+      seen = results![0]!.output;
+      return { text: 'done', calls: [] };
+    });
+    const { app } = setup({ provider });
+    const t = await session(app);
+    await request(app).post('/v1/demo').set(auth(t)).send({ currency: 'EUR' });
+    const r = await request(app).post('/v1/agent/runs').set(auth(t)).send({ message: 'Is it safe?' });
+    expect(r.body.toolEvents[0].tool).toBe('run_stress_test');
+    expect(JSON.stringify(seen)).toContain('EUR ');
+  });
+});
+
 describe('agent loop', () => {
   it('runs allowlisted tools and records actual events', async () => {
     const provider = new MockProvider((turn) =>

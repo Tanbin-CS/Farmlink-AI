@@ -7,3 +7,5 @@ export * from './applications';
 export * from './csv';
 export * from './hash';
 export * from './demo';
+export * from './fx';
+export * from './scenario';

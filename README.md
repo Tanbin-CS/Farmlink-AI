@@ -52,12 +52,18 @@ Cooperatives buy seed, fertilizer, and labour weeks before harvest receipts arri
 
 ## Quick start
 
+Needs Node.js 22.
+
 ```bash
-npm ci
+git clone https://github.com/Tanbin-CS/Farmlink-AI.git
+cd Farmlink-AI
+npm install              # on Windows/macOS use npm install, not npm ci (see note below)
 npm run dev:web          # guided mode at http://localhost:5173
 npm test                 # engine + frontend + API tests
 npm run e2e -w frontend  # Playwright (needs Chromium)
 ```
+
+The lock file is generated on Linux, where CI runs `npm ci`. On Windows or macOS, some npm versions reject it with `EUSAGE … @emnapi/* … Missing from lock file`. Those packages are optional WebAssembly fallbacks of Tailwind. `npm install` resolves them for your platform; do not commit the resulting lock-file changes.
 
 To run the live API locally:
 

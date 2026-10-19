@@ -10,7 +10,7 @@ const patterns = [
   [/sk-[A-Za-z0-9]{32,}/, 'OpenAI-style API key'],
   [/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/, 'Private key'],
   [/ghp_[0-9A-Za-z]{36}/, 'GitHub token'],
-  [/postgres(ql)?:\/\/[^\s'"]+:[^\s'"@]+@/, 'Database URL with password'],
+  [/postgres(ql)?:\/\/[^\s'"<>:]+:(?!PASSWORD@|<)[^\s'"@<>]+@/, 'Database URL with password'],
   [/"type":\s*"service_account"/, 'GCP service account JSON'],
 ];
 let findings = 0;

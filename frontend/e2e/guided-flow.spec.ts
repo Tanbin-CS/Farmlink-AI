@@ -79,6 +79,7 @@ test('guided copilot buttons run deterministic tools and log events', async ({ p
 test('what-if scenario changes the projected gap without changing records', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('button', { name: 'Try the demo' }).click();
+  await expect(page.getByText(/Cash runs out in 7 days/)).toBeVisible();
   await page.goto('./#/cashflow');
   await page.getByRole('button', { name: 'Input and operating costs 15% higher' }).click();
   await expect(page.getByText('What-if gap')).toBeVisible();
@@ -111,6 +112,7 @@ test('welcome tour explains the demo once, and the command palette navigates', a
 test('clicking the forecast chart shows that day in detail', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('button', { name: 'Try the demo' }).click();
+  await expect(page.getByText(/Cash runs out in 7 days/)).toBeVisible();
   await page.goto('./#/cashflow');
   await expect(page.getByText('Click any day on the chart')).toBeVisible();
   const chart = page.locator('.recharts-wrapper').first();

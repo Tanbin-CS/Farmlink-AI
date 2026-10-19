@@ -1,0 +1,346 @@
+{
+  "kind": "farmlink-execution-evidence",
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-19T20:23:04.071Z",
+  "mode": "guided_local",
+  "build": {
+    "frontendSha": "ea43b5beb2be8bd64278021a8a1322ec4cfd55a7",
+    "backendSha": null,
+    "engineVersion": "1.0.0"
+  },
+  "provider": null,
+  "workspace": {
+    "id": "ws_demo",
+    "businessName": "Sandbox Demo Cooperative (fictional)",
+    "businessType": "cooperative",
+    "asOfDate": "2026-10-20",
+    "forecastDays": 90,
+    "version": 1,
+    "provenance": "sandbox_fixture",
+    "eventCount": 16
+  },
+  "applications": [
+    {
+      "id": "app_VLZ2RRex6IKQ",
+      "productId": "sbx-seasonal-a",
+      "productName": "Seasonal Crop Line A",
+      "provider": "Sandbox Lender Alpha (fictional)",
+      "classification": "sandbox_product",
+      "quote": {
+        "principalMinor": "42979798",
+        "feeMinor": "479798",
+        "interestMinor": "971461",
+        "netCashReceivedMinor": "42500000",
+        "maturityRepaymentMinor": "43951259",
+        "totalFinancingCostMinor": "1451259"
+      },
+      "disbursementDate": "2026-10-22",
+      "maturityDate": "2027-01-05",
+      "purpose": "Seasonal working capital for seed and fertilizer before harvest",
+      "sharedRecordIds": [
+        "ev-003",
+        "ev-004",
+        "ev-005",
+        "ev-006",
+        "ev-007",
+        "ev-009",
+        "ev-010",
+        "ev-011",
+        "ev-012",
+        "ev-013",
+        "ev-014",
+        "ev-015"
+      ],
+      "sharedFields": [
+        {
+          "key": "businessName",
+          "label": "Business name",
+          "value": "Sandbox Demo Cooperative (fictional)"
+        },
+        {
+          "key": "businessType",
+          "label": "Business type",
+          "value": "cooperative"
+        },
+        {
+          "key": "analysisWindow",
+          "label": "Forecast window",
+          "value": "2026-10-20 to 2027-01-17"
+        },
+        {
+          "key": "fundingGap",
+          "label": "Projected funding gap",
+          "value": "BDT 4,25,000.00"
+        },
+        {
+          "key": "earliestNegativeDate",
+          "label": "First negative-cash date",
+          "value": "2026-10-27"
+        },
+        {
+          "key": "requestedPrincipal",
+          "label": "Requested principal",
+          "value": "BDT 4,29,797.98"
+        },
+        {
+          "key": "purpose",
+          "label": "Stated purpose",
+          "value": "Seasonal working capital for seed and fertilizer before harvest"
+        },
+        {
+          "key": "recordCount",
+          "label": "Cash records shared (IDs only)",
+          "value": "12"
+        },
+        {
+          "key": "evidence",
+          "label": "Evidence marked available",
+          "value": "sales_records, purchase_order, cooperative_registration, trade_license"
+        }
+      ],
+      "limitations": [
+        "Fictional sandbox terms for software testing only."
+      ],
+      "workspaceVersion": 1,
+      "catalogVersion": 1,
+      "status": "SANDBOX_SUBMITTED",
+      "version": 1,
+      "createdAt": "2026-10-19T20:23:03.247Z",
+      "updatedAt": "2026-10-19T20:23:03.924Z",
+      "createdBy": "user",
+      "pendingActionId": "act_Q3X6BSBEGXQg",
+      "receipt": {
+        "receiptId": "rcpt_NYs1SN-dTN14",
+        "applicationId": "app_VLZ2RRex6IKQ",
+        "status": "SANDBOX_SUBMITTED",
+        "destination": "FarmLink internal lender simulator",
+        "submittedAt": "2026-10-19T20:23:03.924Z",
+        "mode": "guided_local",
+        "actionId": "act_Q3X6BSBEGXQg",
+        "payloadHash": "55409c710cc0c6b3c5c38fcccaa0cc70bc6d900b45a47d3f30af6b830a53f370",
+        "draftVersion": 1,
+        "workspaceVersion": 1,
+        "catalogVersion": 1,
+        "idempotencyKey": "idem_k5oslgkpuiQ1Z06m719MBA",
+        "label": "Local sandbox receipt — browser only"
+      }
+    }
+  ],
+  "pendingActions": [
+    {
+      "id": "act_Q3X6BSBEGXQg",
+      "type": "submit_sandbox_application",
+      "applicationId": "app_VLZ2RRex6IKQ",
+      "payload": {
+        "type": "submit_sandbox_application",
+        "destination": "FarmLink internal lender simulator",
+        "applicationId": "app_VLZ2RRex6IKQ",
+        "draftVersion": 1,
+        "workspaceVersion": 1,
+        "catalogVersion": 1,
+        "productId": "sbx-seasonal-a",
+        "quote": {
+          "principalMinor": "42979798",
+          "feeMinor": "479798",
+          "interestMinor": "971461",
+          "netCashReceivedMinor": "42500000",
+          "maturityRepaymentMinor": "43951259",
+          "totalFinancingCostMinor": "1451259"
+        },
+        "disbursementDate": "2026-10-22",
+        "maturityDate": "2027-01-05",
+        "purpose": "Seasonal working capital for seed and fertilizer before harvest",
+        "sharedFields": [
+          {
+            "key": "businessName",
+            "label": "Business name",
+            "value": "Sandbox Demo Cooperative (fictional)"
+          },
+          {
+            "key": "businessType",
+            "label": "Business type",
+            "value": "cooperative"
+          },
+          {
+            "key": "analysisWindow",
+            "label": "Forecast window",
+            "value": "2026-10-20 to 2027-01-17"
+          },
+          {
+            "key": "fundingGap",
+            "label": "Projected funding gap",
+            "value": "BDT 4,25,000.00"
+          },
+          {
+            "key": "earliestNegativeDate",
+            "label": "First negative-cash date",
+            "value": "2026-10-27"
+          },
+          {
+            "key": "requestedPrincipal",
+            "label": "Requested principal",
+            "value": "BDT 4,29,797.98"
+          },
+          {
+            "key": "purpose",
+            "label": "Stated purpose",
+            "value": "Seasonal working capital for seed and fertilizer before harvest"
+          },
+          {
+            "key": "recordCount",
+            "label": "Cash records shared (IDs only)",
+            "value": "12"
+          },
+          {
+            "key": "evidence",
+            "label": "Evidence marked available",
+            "value": "sales_records, purchase_order, cooperative_registration, trade_license"
+          }
+        ],
+        "sharedRecordIds": [
+          "ev-003",
+          "ev-004",
+          "ev-005",
+          "ev-006",
+          "ev-007",
+          "ev-009",
+          "ev-010",
+          "ev-011",
+          "ev-012",
+          "ev-013",
+          "ev-014",
+          "ev-015"
+        ]
+      },
+      "payloadHash": "55409c710cc0c6b3c5c38fcccaa0cc70bc6d900b45a47d3f30af6b830a53f370",
+      "nonce": "n_u0RRpSS_GqayXpDkDxfPMw",
+      "createdAt": "2026-10-19T20:23:03.320Z",
+      "expiresAt": "2026-10-19T20:28:03.320Z",
+      "status": "consumed",
+      "createdBy": "user",
+      "idempotencyKey": "idem_k5oslgkpuiQ1Z06m719MBA"
+    }
+  ],
+  "approvals": [
+    {
+      "id": "apr_h9GCwbHSoRj6",
+      "pendingActionId": "act_Q3X6BSBEGXQg",
+      "applicationId": "app_VLZ2RRex6IKQ",
+      "payloadHash": "55409c710cc0c6b3c5c38fcccaa0cc70bc6d900b45a47d3f30af6b830a53f370",
+      "draftVersion": 1,
+      "decision": "confirmed",
+      "decidedAt": "2026-10-19T20:23:03.924Z",
+      "actionExpiresAt": "2026-10-19T20:28:03.320Z",
+      "resultRef": "rcpt_NYs1SN-dTN14",
+      "mode": "guided_local"
+    }
+  ],
+  "runs": [],
+  "toolEvents": [
+    {
+      "id": "te_iywx1BY4QjAD",
+      "runId": "run_OoueuQ5FC7l0",
+      "seq": 1,
+      "at": "2026-10-19T20:23:01.757Z",
+      "mode": "guided_local",
+      "actor": "user",
+      "tool": "load_demo_scenario",
+      "args": {
+        "asOfDate": "2026-10-20"
+      },
+      "policy": "allowed",
+      "outcome": "Loaded fictional sandbox demo scenario (sandbox_fixture).",
+      "recordVersions": {
+        "workspace": 1,
+        "catalog": 1
+      }
+    },
+    {
+      "id": "te_x9h-gAzzZn08",
+      "runId": "run_OoueuQ5FC7l0",
+      "seq": 2,
+      "at": "2026-10-19T20:23:03.247Z",
+      "mode": "guided_local",
+      "actor": "user",
+      "tool": "create_application_draft",
+      "args": {
+        "productId": "sbx-seasonal-a",
+        "principalMinor": "42979798"
+      },
+      "policy": "allowed",
+      "outcome": "Draft app_VLZ2RRex6IKQ created (no submission).",
+      "recordVersions": {
+        "workspace": 1,
+        "draft": 1,
+        "catalog": 1
+      }
+    },
+    {
+      "id": "te_TtmISnc0OFmv",
+      "runId": "run_OoueuQ5FC7l0",
+      "seq": 3,
+      "at": "2026-10-19T20:23:03.321Z",
+      "mode": "guided_local",
+      "actor": "user",
+      "tool": "prepare_sandbox_submission",
+      "args": {
+        "applicationId": "app_VLZ2RRex6IKQ"
+      },
+      "policy": "requires_confirmation",
+      "outcome": "Pending action act_Q3X6BSBEGXQg frozen (hash 55409c710cc0…); waiting for human confirmation.",
+      "recordVersions": {
+        "workspace": 1,
+        "draft": 1,
+        "catalog": 1
+      }
+    },
+    {
+      "id": "te_kZ26YsADDBQS",
+      "runId": "run_OoueuQ5FC7l0",
+      "seq": 4,
+      "at": "2026-10-19T20:23:03.924Z",
+      "mode": "guided_local",
+      "actor": "user",
+      "tool": "confirm_sandbox_submission",
+      "args": {
+        "actionId": "act_Q3X6BSBEGXQg"
+      },
+      "policy": "allowed",
+      "outcome": "Human-confirmed. Local sandbox receipt — browser only: rcpt_NYs1SN-dTN14.",
+      "recordVersions": {
+        "workspace": 1,
+        "catalog": 1
+      }
+    },
+    {
+      "id": "te_uf4_cGJd5tax",
+      "runId": "run_OoueuQ5FC7l0",
+      "seq": 5,
+      "at": "2026-10-19T20:23:04.071Z",
+      "mode": "guided_local",
+      "actor": "user",
+      "tool": "export_execution_log",
+      "args": {
+        "redactBusinessName": false
+      },
+      "policy": "allowed",
+      "outcome": "Evidence bundle exported.",
+      "recordVersions": {
+        "workspace": 1,
+        "catalog": 1
+      }
+    }
+  ],
+  "modeLabel": "Guided sandbox — no live AI",
+  "truthLabels": [
+    "Competition prototype. Sandbox only. No real loan, payment, or lender submission.",
+    "Local logs can be edited by the browser user.",
+    "The content hash is an integrity aid for this export, not an independent attestation."
+  ],
+  "reproduction": [
+    "Open the public site, choose the same mode, and load the sandbox demo scenario (or import the same records).",
+    "Run Analyze cash flow, Compare financing, Prepare application, then review and confirm the sandbox submission.",
+    "Financial outputs are deterministic for identical records, catalog, and engine version."
+  ],
+  "contentHash": "c816df86497c4d1469a24b8e0baf449027f9b6143d7b70c20cf45d01d49e67eb"
+}

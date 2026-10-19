@@ -64,16 +64,12 @@ function FinancingInner() {
           <caption className="sr-only">Financing options compared</caption>
           <THead>
             <tr>
-              <TH>Rank</TH>
+              <TH>#</TH>
               <TH>Option</TH>
               <TH>Result</TH>
-              <TH className="text-right">Principal</TH>
-              <TH className="text-right">Fee</TH>
-              <TH className="text-right">Net cash</TH>
-              <TH className="text-right">Interest</TH>
-              <TH className="text-right">Repay at maturity</TH>
-              <TH className="text-right">Total cost</TH>
-              <TH>Dates</TH>
+              <TH className="text-right">Principal / net cash</TH>
+              <TH className="text-right">Modeled cost</TH>
+              <TH>Repayment</TH>
               <TH>
                 <span className="sr-only">Action</span>
               </TH>
@@ -85,15 +81,15 @@ function FinancingInner() {
               return (
                 <TR key={e.productId}>
                   <TD className="font-semibold">{e.rank ?? '—'}</TD>
-                  <TD className="min-w-48">
+                  <TD className="min-w-44 max-w-56">
                     <div className="font-medium">{e.productName}</div>
                     <div className="text-xs text-stone-600">{e.provider}</div>
-                    <div className="mt-1 flex flex-wrap gap-1">
+                    <div className="mt-1 flex flex-wrap items-center gap-1">
                       <Badge variant={e.classification === 'sandbox_product' ? 'neutral' : 'info'}>{e.classification === 'sandbox_product' ? 'Sandbox product' : 'Public reference'}</Badge>
                       {p ? <Terms p={p} /> : null}
                     </div>
                   </TD>
-                  <TD className="min-w-56">
+                  <TD className="min-w-52 max-w-72">
                     <StatusBadge status={e.status} />
                     <ul className="mt-1 space-y-0.5 text-xs text-stone-700">
                       {e.reasons.map((r) => (
@@ -106,40 +102,32 @@ function FinancingInner() {
                   </TD>
                   {e.quote ? (
                     <>
-                      <TD className="text-right">
-                        <Money value={e.quote.principalMinor} />
+                      <TD className="text-right text-xs">
+                        <Money value={e.quote.principalMinor} className="text-sm font-medium" />
+                        <div className="text-stone-600">
+                          net <Money value={e.quote.netCashReceivedMinor} />
+                        </div>
                       </TD>
-                      <TD className="text-right">
-                        <Money value={e.quote.feeMinor} />
+                      <TD className="text-right text-xs">
+                        <Money value={e.quote.totalFinancingCostMinor} className="text-sm font-semibold" />
+                        <div className="text-stone-600">
+                          fee <Money value={e.quote.feeMinor} />
+                        </div>
+                        <div className="text-stone-600">
+                          interest <Money value={e.quote.interestMinor} />
+                        </div>
                       </TD>
-                      <TD className="text-right">
-                        <Money value={e.quote.netCashReceivedMinor} />
-                      </TD>
-                      <TD className="text-right">
-                        <Money value={e.quote.interestMinor} />
-                      </TD>
-                      <TD className="text-right">
-                        <Money value={e.quote.maturityRepaymentMinor} />
-                      </TD>
-                      <TD className="text-right font-semibold">
-                        <Money value={e.quote.totalFinancingCostMinor} />
+                      <TD className="whitespace-nowrap text-xs">
+                        <Money value={e.quote.maturityRepaymentMinor} className="text-sm font-medium" />
+                        <div className="text-stone-600">funds {e.disbursementDate}</div>
+                        <div className="text-stone-600">due {e.maturityDate}</div>
                       </TD>
                     </>
                   ) : (
-                    <TD colSpan={6} className="text-center text-xs text-stone-500">
+                    <TD colSpan={3} className="text-center text-xs text-stone-500">
                       Not costed: terms incomplete or ineligible
                     </TD>
                   )}
-                  <TD className="whitespace-nowrap text-xs">
-                    {e.disbursementDate ? (
-                      <>
-                        <div>Funds: {e.disbursementDate}</div>
-                        <div>Maturity: {e.maturityDate}</div>
-                      </>
-                    ) : (
-                      '—'
-                    )}
-                  </TD>
                   <TD>
                     {e.status === 'fits' ? (
                       <Button size="sm" onClick={() => draft(e)} disabled={busy}>

@@ -4,6 +4,7 @@ import { canonicalJson, compareFinancing, demoCatalog, demoEvents, demoWorkspace
 import { createApp } from '../src/api/app';
 import { loadConfig, type AppConfig } from '../src/config';
 import { MemoryStore } from '../src/storage/memory';
+import { normalizeConnectionString } from '../src/storage/pg';
 import type { Conversation, ModelProvider, ModelTurn, ToolResultMessage } from '../src/agent/provider';
 import { ProviderError } from '../src/agent/provider';
 
@@ -382,5 +383,12 @@ describe('agent loop', () => {
     const r = await request(app).post('/v1/agent/runs').set(auth(t)).send({ message: 'a' });
     expect(r.status).toBe(503);
     expect(provider.calls).toBe(0);
+  });
+});
+
+describe('database configuration', () => {
+  it('accepts Neon connection strings as copied, dropping libpq-only options', () => {
+    const out = normalizeConnectionString('postgresql://user:secret@ep-x-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require');
+    expect(out).toBe('postgresql://user:secret@ep-x-pooler.us-east-2.aws.neon.tech/neondb?sslmode=verify-full');
   });
 });

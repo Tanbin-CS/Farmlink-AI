@@ -26,6 +26,17 @@ create table if not exists quotas (
 );
 `;
 
+/**
+ * Neon's copy-paste strings include libpq-only options (channel_binding) that node-postgres
+ * does not use. Strip them, and make TLS certificate verification explicit (verify-full).
+ */
+export function normalizeConnectionString(raw: string): string {
+  const u = new URL(raw.trim());
+  u.searchParams.delete('channel_binding');
+  if (u.searchParams.get('sslmode') === 'require') u.searchParams.set('sslmode', 'verify-full');
+  return u.toString();
+}
+
 /** Postgres store (Neon or Render Postgres). Session-scoped work runs in one transaction holding a row lock. */
 export class PgStore implements Store {
   readonly kind = 'postgres' as const;
@@ -33,7 +44,7 @@ export class PgStore implements Store {
   private pool: pg.Pool;
 
   constructor(connectionString: string) {
-    this.pool = new pg.Pool({ connectionString, max: 5, idleTimeoutMillis: 30_000, connectionTimeoutMillis: 10_000 });
+    this.pool = new pg.Pool({ connectionString: normalizeConnectionString(connectionString), max: 5, idleTimeoutMillis: 30_000, connectionTimeoutMillis: 10_000 });
   }
 
   async init() {

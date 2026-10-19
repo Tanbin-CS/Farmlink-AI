@@ -6,9 +6,9 @@ These are the actual results of commands run on 2026-10-19/20 (UTC). The first r
 | --- | --- | --- |
 | Engine unit tests | `npm test -w packages/engine` | **31 passed** (adds currencies, display FX, scenarios, stress test) |
 | Frontend unit tests (guided client) | `npm test -w frontend` | **5 passed** |
-| API safety tests (in-memory store, mock model provider) | `npm test -w backend` | **25 passed**, 2 skipped (Postgres tests need `TEST_DATABASE_URL`) |
+| API safety tests (in-memory store, mock model provider) | `npm test -w backend` | **27 passed**, 2 skipped (Postgres tests need `TEST_DATABASE_URL`), at commit `7b46c6f`, including the stress warning returned by `prepare_sandbox_submission` |
 | Postgres integration (real PostgreSQL 16, local) | `TEST_DATABASE_URL=… npm test -w backend` | **25 passed** (23 API + 2 Postgres) on the earlier commit `e715f2a`; the 2 new currency/stress API tests run in memory |
-| Browser e2e (Playwright, Chromium, desktop + Pixel 7) | `npm run e2e -w frontend` | **10 passed** (guided flow, copilot, what-if, welcome tour + command palette, chart drill-down) |
+| Browser e2e (Playwright, Chromium, desktop + Pixel 7) | `npm run e2e -w frontend` | **11 passed**, 1 skipped on mobile, at commit `7b46c6f` (guided flow with the review-dialog stress warning, copilot, what-if, welcome tour + command palette, chart drill-down, scroll regression) |
 | Typecheck / lint / build | `npm run typecheck && npm run lint && npm run build` | pass |
 | Secret scan | `node scripts/secret-scan.mjs . frontend/dist` | pass |
 | GitHub Actions CI (all of the above except Postgres) | `.github/workflows/ci.yml` | **success** on `e715f2a` ([run 39318293600](https://github.com/Tanbin-CS/Farmlink-AI/actions/runs/39318293600)) |

@@ -388,7 +388,7 @@ describe('agent loop', () => {
 
 describe('database configuration', () => {
   it('accepts Neon connection strings as copied, dropping libpq-only options', () => {
-    const out = normalizeConnectionString('postgresql://user:secret@ep-x-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require');
-    expect(out).toBe('postgresql://user:secret@ep-x-pooler.us-east-2.aws.neon.tech/neondb?sslmode=verify-full');
+    const out = normalizeConnectionString('postgresql://user:PASSWORD@ep-x-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require');
+    expect(out).toBe('postgresql://user:PASSWORD@ep-x-pooler.us-east-2.aws.neon.tech/neondb?sslmode=verify-full');
   });
 });

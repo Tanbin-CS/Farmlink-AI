@@ -15,5 +15,5 @@ Follow the stricter combined package. Upload early, because updates are allowed 
 | 9 | Prior-work disclosure | Done | `PRIOR_WORK.md`. Confirm with coauthors and organizers |
 | 10 | License decision | Pending owner | `LICENSE-DECISION.md` |
 | 11 | GitHub Pages enabled + URL verified | Done | https://tanbin-cs.github.io/Farmlink-AI/ |
-| 12 | Live API deployed (optional but recommended) | Done (Render, free plan; in-memory storage until Neon is added) | `docs/DEPLOYMENT.md` |
+| 12 | Live API deployed (optional but recommended) | Done: Render free plan + Neon Postgres (durable), `gemini-3.8-flash`. Health confirmed on backend `99a5fea` | https://farmlink-api-kfvi.onrender.com/v1/health |
 | 13 | Release tag recorded | After final checks | `v0.2.0-prototype`; record the SHA in the evidence |

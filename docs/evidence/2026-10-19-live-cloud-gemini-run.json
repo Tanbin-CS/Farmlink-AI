@@ -1,0 +1,461 @@
+{
+  "kind": "farmlink-execution-evidence",
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-19T22:13:21.493Z",
+  "mode": "live_cloud",
+  "build": {
+    "frontendSha": null,
+    "backendSha": "6eb18c4982e3cbd0d6ded6353df4539030b86399",
+    "engineVersion": "1.0.0"
+  },
+  "provider": {
+    "name": "gemini",
+    "modelId": "gemini-3.8-flash"
+  },
+  "workspace": {
+    "id": "ws_93zkcYg4c1s6",
+    "businessName": "Sandbox Demo Cooperative (fictional)",
+    "businessType": "cooperative",
+    "asOfDate": "2026-10-20",
+    "forecastDays": 90,
+    "version": 1,
+    "provenance": "sandbox_fixture",
+    "eventCount": 16
+  },
+  "applications": [
+    {
+      "id": "app_YtGT1QOtSpi-",
+      "productId": "sbx-seasonal-a",
+      "productName": "Seasonal Crop Line A",
+      "provider": "Sandbox Lender Alpha (fictional)",
+      "classification": "sandbox_product",
+      "quote": {
+        "principalMinor": "42979798",
+        "feeMinor": "479798",
+        "interestMinor": "971461",
+        "netCashReceivedMinor": "42500000",
+        "maturityRepaymentMinor": "43951259",
+        "totalFinancingCostMinor": "1451259"
+      },
+      "disbursementDate": "2026-10-22",
+      "maturityDate": "2027-01-05",
+      "purpose": "Cover projected seasonal working capital gap through harvest",
+      "sharedRecordIds": [
+        "ev-003",
+        "ev-004",
+        "ev-005",
+        "ev-006",
+        "ev-007",
+        "ev-009",
+        "ev-010",
+        "ev-011",
+        "ev-012",
+        "ev-013",
+        "ev-014",
+        "ev-015"
+      ],
+      "sharedFields": [
+        {
+          "key": "businessName",
+          "label": "Business name",
+          "value": "Sandbox Demo Cooperative (fictional)"
+        },
+        {
+          "key": "businessType",
+          "label": "Business type",
+          "value": "cooperative"
+        },
+        {
+          "key": "currency",
+          "label": "Currency",
+          "value": "BDT"
+        },
+        {
+          "key": "analysisWindow",
+          "label": "Forecast window",
+          "value": "2026-10-20 to 2027-01-17"
+        },
+        {
+          "key": "fundingGap",
+          "label": "Projected funding gap",
+          "value": "BDT 425,000.00"
+        },
+        {
+          "key": "earliestNegativeDate",
+          "label": "First negative-cash date",
+          "value": "2026-10-27"
+        },
+        {
+          "key": "requestedPrincipal",
+          "label": "Requested principal",
+          "value": "BDT 429,797.98"
+        },
+        {
+          "key": "purpose",
+          "label": "Stated purpose",
+          "value": "Cover projected seasonal working capital gap through harvest"
+        },
+        {
+          "key": "recordCount",
+          "label": "Cash records shared (IDs only)",
+          "value": "12"
+        },
+        {
+          "key": "evidence",
+          "label": "Evidence marked available",
+          "value": "sales_records, purchase_order, cooperative_registration, trade_license"
+        }
+      ],
+      "limitations": [
+        "Fictional sandbox terms for software testing only."
+      ],
+      "workspaceVersion": 1,
+      "catalogVersion": 1,
+      "status": "SANDBOX_SUBMITTED",
+      "version": 1,
+      "createdAt": "2026-10-19T22:12:24.744Z",
+      "updatedAt": "2026-10-19T22:13:02.444Z",
+      "createdBy": "model",
+      "pendingActionId": "act_vCqEr8BUObvS",
+      "receipt": {
+        "receiptId": "rcpt_dlFmbi2JgE7l",
+        "applicationId": "app_YtGT1QOtSpi-",
+        "status": "SANDBOX_SUBMITTED",
+        "destination": "FarmLink internal lender simulator",
+        "submittedAt": "2026-10-19T22:13:02.444Z",
+        "mode": "live_cloud",
+        "actionId": "act_vCqEr8BUObvS",
+        "payloadHash": "8fcf259840eb9f06f1dd349bd84eb1d42bb8781f73fdaa4ce9447f18a5994bfb",
+        "draftVersion": 1,
+        "workspaceVersion": 1,
+        "catalogVersion": 1,
+        "idempotencyKey": "idem_8-jKnQ3hEsWw8e2vZx2R8w",
+        "label": "Server sandbox receipt — FarmLink internal lender simulator"
+      }
+    }
+  ],
+  "pendingActions": [
+    {
+      "id": "act_vCqEr8BUObvS",
+      "type": "submit_sandbox_application",
+      "applicationId": "app_YtGT1QOtSpi-",
+      "payload": {
+        "type": "submit_sandbox_application",
+        "destination": "FarmLink internal lender simulator",
+        "applicationId": "app_YtGT1QOtSpi-",
+        "draftVersion": 1,
+        "workspaceVersion": 1,
+        "catalogVersion": 1,
+        "productId": "sbx-seasonal-a",
+        "quote": {
+          "principalMinor": "42979798",
+          "feeMinor": "479798",
+          "interestMinor": "971461",
+          "netCashReceivedMinor": "42500000",
+          "maturityRepaymentMinor": "43951259",
+          "totalFinancingCostMinor": "1451259"
+        },
+        "disbursementDate": "2026-10-22",
+        "maturityDate": "2027-01-05",
+        "purpose": "Cover projected seasonal working capital gap through harvest",
+        "sharedFields": [
+          {
+            "key": "businessName",
+            "label": "Business name",
+            "value": "Sandbox Demo Cooperative (fictional)"
+          },
+          {
+            "key": "businessType",
+            "label": "Business type",
+            "value": "cooperative"
+          },
+          {
+            "key": "currency",
+            "label": "Currency",
+            "value": "BDT"
+          },
+          {
+            "key": "analysisWindow",
+            "label": "Forecast window",
+            "value": "2026-10-20 to 2027-01-17"
+          },
+          {
+            "key": "fundingGap",
+            "label": "Projected funding gap",
+            "value": "BDT 425,000.00"
+          },
+          {
+            "key": "earliestNegativeDate",
+            "label": "First negative-cash date",
+            "value": "2026-10-27"
+          },
+          {
+            "key": "requestedPrincipal",
+            "label": "Requested principal",
+            "value": "BDT 429,797.98"
+          },
+          {
+            "key": "purpose",
+            "label": "Stated purpose",
+            "value": "Cover projected seasonal working capital gap through harvest"
+          },
+          {
+            "key": "recordCount",
+            "label": "Cash records shared (IDs only)",
+            "value": "12"
+          },
+          {
+            "key": "evidence",
+            "label": "Evidence marked available",
+            "value": "sales_records, purchase_order, cooperative_registration, trade_license"
+          }
+        ],
+        "sharedRecordIds": [
+          "ev-003",
+          "ev-004",
+          "ev-005",
+          "ev-006",
+          "ev-007",
+          "ev-009",
+          "ev-010",
+          "ev-011",
+          "ev-012",
+          "ev-013",
+          "ev-014",
+          "ev-015"
+        ]
+      },
+      "payloadHash": "8fcf259840eb9f06f1dd349bd84eb1d42bb8781f73fdaa4ce9447f18a5994bfb",
+      "nonce": "n_qE2x3LNWQdS2X96SOACQjQ",
+      "createdAt": "2026-10-19T22:12:28.089Z",
+      "expiresAt": "2026-10-19T22:17:28.089Z",
+      "status": "consumed",
+      "createdBy": "model",
+      "idempotencyKey": "idem_8-jKnQ3hEsWw8e2vZx2R8w"
+    }
+  ],
+  "approvals": [
+    {
+      "id": "apr_hxRfuYiFZiDx",
+      "pendingActionId": "act_vCqEr8BUObvS",
+      "applicationId": "app_YtGT1QOtSpi-",
+      "payloadHash": "8fcf259840eb9f06f1dd349bd84eb1d42bb8781f73fdaa4ce9447f18a5994bfb",
+      "draftVersion": 1,
+      "decision": "confirmed",
+      "decidedAt": "2026-10-19T22:13:02.444Z",
+      "actionExpiresAt": "2026-10-19T22:17:28.089Z",
+      "resultRef": "rcpt_dlFmbi2JgE7l",
+      "mode": "live_cloud"
+    }
+  ],
+  "runs": [
+    {
+      "id": "run_e5vaWVzc-yt7",
+      "mode": "live_cloud",
+      "startedAt": "2026-10-19T22:11:09.452Z",
+      "finishedAt": "2026-10-19T22:11:19.409Z",
+      "status": "completed",
+      "provider": "gemini",
+      "modelId": "gemini-3.8-flash",
+      "userMessage": "When will we run short of cash, and by how much?",
+      "reply": "Based on the daily cash-flow projection, your cash balance turns negative on 2026-10-27. \n\nThe peak funding gap reaches BDT 425,000.00 on 2026-12-09, when the projected minimum closing cash hits -BDT 425,000.00. Across the 90-day window, there are 51 critical days below zero.\n\nKey assumptions and notes:\n- Opening cash is BDT 350,000.00 as of 2026-10-20.\n- Planned event ev-002 is dated prior to the projection start and is excluded as overdue until settled or rescheduled.\n- Daily inflows and outflows are netted at day end.",
+      "roundTrips": 2,
+      "toolCalls": 1,
+      "pendingActionId": null,
+      "error": null
+    },
+    {
+      "id": "run_m8SN-CSZkO2n",
+      "mode": "live_cloud",
+      "startedAt": "2026-10-19T22:11:54.093Z",
+      "finishedAt": "2026-10-19T22:12:04.762Z",
+      "status": "completed",
+      "provider": "gemini",
+      "modelId": "gemini-3.8-flash",
+      "userMessage": "Compare the financing options and stress-test the cheapest one.",
+      "reply": "Two sandbox options fit the stated rules (which indicates rule alignment only, not a loan approval):\n\n1. Seasonal Crop Line A (sbx-seasonal-a): Total modeled cost BDT 14,512.59 (principal BDT 429,797.98, fee BDT 4,797.98, interest BDT 9,714.61). Repayment BDT 439,512.59 on 2027-01-05.\n2. Agri Working Capital B (sbx-working-b): Total modeled cost BDT 15,089.46 (principal BDT 433,673.47). Repayment BDT 440,089.46 on 2026-12-24.\n\nSeasonal Crop Line A has the lowest modeled cost among the comparable options provided.\n\nStress test results for Seasonal Crop Line A:\nIt survives 0 out of 4 adverse scenarios (verdict: fragile):\n- Harvest 14 days late: cash drops to -BDT 60,000.00\n- Sales 20% lower: cash drops to -BDT 18,000.00\n- Operating costs 15% higher: cash drops to -BDT 129,750.00\n- Combined adverse shock: cash drops to -BDT 161,500.00\n\nOther options did not fit due to delayed disbursement, horizon gaps, or post-repayment cash shortfalls.",
+      "roundTrips": 3,
+      "toolCalls": 2,
+      "pendingActionId": null,
+      "error": null
+    },
+    {
+      "id": "run_hvTXjb5PYq1_",
+      "mode": "live_cloud",
+      "startedAt": "2026-10-19T22:12:20.631Z",
+      "finishedAt": "2026-10-19T22:12:28.090Z",
+      "status": "awaiting_confirmation",
+      "provider": "gemini",
+      "modelId": "gemini-3.8-flash",
+      "userMessage": "Prepare a sandbox application with the best option.",
+      "reply": "[System] A sandbox submission is prepared and waiting for YOUR review. Nothing is submitted until you press Confirm in the review dialog. It expires at 2026-10-19T22:17:28.089Z.",
+      "roundTrips": 2,
+      "toolCalls": 2,
+      "pendingActionId": "act_vCqEr8BUObvS",
+      "error": null
+    }
+  ],
+  "toolEvents": [
+    {
+      "id": "te_JyYr3Z4FRoKq",
+      "runId": "ui_9006e9a7",
+      "seq": 1,
+      "at": "2026-10-19T22:10:35.404Z",
+      "mode": "live_cloud",
+      "actor": "user",
+      "tool": "load_demo_scenario",
+      "args": {
+        "asOfDate": "2026-10-20",
+        "currency": "BDT"
+      },
+      "policy": "allowed",
+      "outcome": "Loaded fictional sandbox demo scenario in BDT (sandbox_fixture).",
+      "recordVersions": {
+        "workspace": 1,
+        "catalog": 1
+      }
+    },
+    {
+      "id": "te_EJFDiaDW5gER",
+      "runId": "run_e5vaWVzc-yt7",
+      "seq": 2,
+      "at": "2026-10-19T22:11:14.199Z",
+      "mode": "live_cloud",
+      "actor": "model",
+      "tool": "calculate_cashflow",
+      "args": {
+        "asOfDate": "2026-10-20",
+        "forecastDays": 90
+      },
+      "policy": "allowed",
+      "outcome": "Gap BDT 425,000.00; first negative 2026-10-27; 51 alert day(s).",
+      "recordVersions": {
+        "workspace": 1,
+        "catalog": 1
+      }
+    },
+    {
+      "id": "te_O9_vKse-oHiw",
+      "runId": "run_m8SN-CSZkO2n",
+      "seq": 3,
+      "at": "2026-10-19T22:11:56.315Z",
+      "mode": "live_cloud",
+      "actor": "model",
+      "tool": "match_financing_options",
+      "args": {
+        "products": 8
+      },
+      "policy": "allowed",
+      "outcome": "2 option(s) fit stated sandbox rules; best: sbx-seasonal-a.",
+      "recordVersions": {
+        "workspace": 1,
+        "catalog": 1
+      }
+    },
+    {
+      "id": "te_9urLNoN6nPad",
+      "runId": "run_m8SN-CSZkO2n",
+      "seq": 4,
+      "at": "2026-10-19T22:11:58.131Z",
+      "mode": "live_cloud",
+      "actor": "model",
+      "tool": "run_stress_test",
+      "args": {
+        "productId": "sbx-seasonal-a"
+      },
+      "policy": "allowed",
+      "outcome": "0/4 stress scenarios keep cash non-negative through maturity (fragile).",
+      "recordVersions": {
+        "workspace": 1,
+        "catalog": 1
+      }
+    },
+    {
+      "id": "te_svoFftkZEFK0",
+      "runId": "run_hvTXjb5PYq1_",
+      "seq": 5,
+      "at": "2026-10-19T22:12:24.745Z",
+      "mode": "live_cloud",
+      "actor": "model",
+      "tool": "create_application_draft",
+      "args": {
+        "productId": "sbx-seasonal-a",
+        "principalMinor": "42979798"
+      },
+      "policy": "allowed",
+      "outcome": "Draft app_YtGT1QOtSpi- created (no submission).",
+      "recordVersions": {
+        "workspace": 1,
+        "draft": 1,
+        "catalog": 1
+      }
+    },
+    {
+      "id": "te_tFmby-wAqQCW",
+      "runId": "run_hvTXjb5PYq1_",
+      "seq": 6,
+      "at": "2026-10-19T22:12:28.090Z",
+      "mode": "live_cloud",
+      "actor": "model",
+      "tool": "prepare_sandbox_submission",
+      "args": {
+        "applicationId": "app_YtGT1QOtSpi-"
+      },
+      "policy": "requires_confirmation",
+      "outcome": "Pending action act_vCqEr8BUObvS frozen (hash 8fcf259840eb…); waiting for human confirmation.",
+      "recordVersions": {
+        "workspace": 1,
+        "draft": 1,
+        "catalog": 1
+      }
+    },
+    {
+      "id": "te_UwToaGmJC7Y7",
+      "runId": "ui_65f483e6",
+      "seq": 7,
+      "at": "2026-10-19T22:13:02.446Z",
+      "mode": "live_cloud",
+      "actor": "user",
+      "tool": "confirm_sandbox_submission",
+      "args": {
+        "actionId": "act_vCqEr8BUObvS"
+      },
+      "policy": "allowed",
+      "outcome": "Human-confirmed. Server sandbox receipt rcpt_dlFmbi2JgE7l.",
+      "recordVersions": {
+        "workspace": 1,
+        "catalog": 1
+      }
+    },
+    {
+      "id": "te_RLULts16s9OL",
+      "runId": "ui_7785f20c",
+      "seq": 8,
+      "at": "2026-10-19T22:13:21.493Z",
+      "mode": "live_cloud",
+      "actor": "user",
+      "tool": "export_execution_log",
+      "args": {
+        "redact": false
+      },
+      "policy": "allowed",
+      "outcome": "Evidence bundle exported.",
+      "recordVersions": {
+        "workspace": 1,
+        "catalog": 1
+      }
+    }
+  ],
+  "modeLabel": "Live AI + sandbox tools",
+  "truthLabels": [
+    "Competition prototype. Sandbox only. No real loan, payment, or lender submission.",
+    "Server logs are application records, not blockchain or tamper-proof evidence.",
+    "The content hash is an integrity aid for this export, not an independent attestation."
+  ],
+  "reproduction": [
+    "Open the public site, choose the same mode, and load the sandbox demo scenario (or import the same records).",
+    "Run Analyze cash flow, Compare financing, Prepare application, then review and confirm the sandbox submission.",
+    "Financial outputs are deterministic for identical records, catalog, and engine version."
+  ],
+  "contentHash": "fd4c507aec86832a1835dcb92b509e794dae5464f50b16f46f7ae4f3a7532bfb"
+}

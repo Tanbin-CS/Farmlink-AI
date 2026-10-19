@@ -13,7 +13,7 @@ These are the actual results of commands run on 2026-10-19/20 (UTC). The first r
 | Secret scan | `node scripts/secret-scan.mjs . frontend/dist` | pass |
 | GitHub Actions CI (all of the above except Postgres) | `.github/workflows/ci.yml` | **success** on `e715f2a` ([run 39318293600](https://github.com/Tanbin-CS/Farmlink-AI/actions/runs/39318293600)) |
 | Live-mode UI against the local API + Postgres (manual Playwright script) | see below | pass: live session, demo, draft, human confirm, "Server sandbox receipt" shown; chat showed an honest error because model calls were disabled |
-| **Live Gemini end-to-end** | needs `GEMINI_API_KEY` + `MODEL_ID` | **NOT RUN.** No key was available to the build agent. Run this with the deployment steps and record the result here. |
+| **Live Gemini end-to-end** | Public site + Render API, `gemini-3.8-flash`, 2026-10-19 22:10–22:13 UTC | **Pass (one manual run)**: the real tool calls were executed and the model stopped for human confirmation. The human confirmed and a server receipt was issued. Evidence: [`docs/evidence/2026-10-19-live-cloud-gemini-run.json`](evidence/2026-10-19-live-cloud-gemini-run.json). This is one observed run, not a statistical evaluation of model behavior. |
 
 ## Engine (23)
 

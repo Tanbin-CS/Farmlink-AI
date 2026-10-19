@@ -1,0 +1,41 @@
+# Render Blueprint for the live sandbox API (free web service).
+# Secrets (GEMINI_API_KEY, DATABASE_URL) and MODEL_ID are entered in the Render dashboard (sync: false).
+services:
+  - type: web
+    name: farmlink-api
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci && npm run build -w backend
+    startCommand: node backend/dist/server.js
+    healthCheckPath: /v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: APP_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        value: https://tanbin-cs.github.io
+      - key: LIVE_AI_ENABLED
+        value: "false"
+      - key: MODEL_PROVIDER
+        value: gemini
+      - key: MODEL_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_TTL_MINUTES
+        value: "120"
+      - key: SESSIONS_PER_HOUR_GLOBAL
+        value: "200"
+      - key: AGENT_RUNS_PER_SESSION_PER_HOUR
+        value: "10"
+      - key: PROVIDER_CALLS_PER_DAY_GLOBAL
+        value: "300"
+      - key: MAX_ROUND_TRIPS
+        value: "3"
+      - key: MAX_TOOL_CALLS
+        value: "6"

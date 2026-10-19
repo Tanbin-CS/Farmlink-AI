@@ -1,0 +1,33 @@
+{
+  "name": "@farmlink/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "node build.mjs",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@farmlink/engine": "*",
+    "@google/genai": "^1.28.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.0",
+    "helmet": "^8.1.0",
+    "pg": "^8.16.3",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
+    "@types/node": "^22.18.0",
+    "@types/pg": "^8.15.6",
+    "@types/supertest": "^6.0.3",
+    "esbuild": "^0.25.11",
+    "supertest": "^7.1.4",
+    "tsx": "^4.20.6"
+  }
+}

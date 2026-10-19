@@ -1,0 +1,53 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck -w packages/engine -w frontend
+      - run: npm test -w packages/engine
+      - name: Build
+        run: npm run build -w frontend
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_BUILD_SHA: ${{ github.sha }}
+          VITE_REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+          # Public, non-secret API origin set in Settings > Secrets and variables > Actions > Variables.
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+      - name: Secret scan of built bundle
+        run: node scripts/secret-scan.mjs frontend/dist
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

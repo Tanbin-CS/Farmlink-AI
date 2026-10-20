@@ -5,8 +5,11 @@ Built for the **2026 Shenzhen International FinTech Competition (FinTechathon), 
 
 > **Competition prototype. Sandbox only. No real loan, payment, or lender submission.**
 
-- **Live site (guided sandbox):** https://tanbin-cs.github.io/Farmlink-AI/ (after GitHub Pages is enabled; see [Deployment](docs/DEPLOYMENT.md))
-- **Live AI API:** optional, deployed separately on Render (see [Deployment](docs/DEPLOYMENT.md))
+- **Live site (guided sandbox):** https://tanbin-cs.github.io/Farmlink-AI/
+- **Live AI API:** https://farmlink-api-kfvi.onrender.com/v1/health (Render; see [Deployment](docs/DEPLOYMENT.md))
+- **Technical document:** [docs/submission/](docs/submission/) (official template, DOCX and PDF)
+
+**Team FarmLink**, American International University-Bangladesh (AIUB): Md. Tanbin Islam, Md. Rifat Ul Islam, Md. Abdulla Ibna, Umme Kulsum Esha.
 
 ## The problem
 

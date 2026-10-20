@@ -9,7 +9,7 @@ Built for the **2026 Shenzhen International FinTech Competition (FinTechathon), 
 - **Live AI API:** https://farmlink-api-kfvi.onrender.com/v1/health (Render; see [Deployment](docs/DEPLOYMENT.md))
 - **Technical document:** [docs/submission/](docs/submission/) (official template, DOCX and PDF)
 
-**Team FarmLink**, American International University-Bangladesh (AIUB): Md. Tanbin Islam, Md. Rifat Ul Islam, Md. Abdulla Ibna, Umme Kulsum Esha.
+**Team FarmLink**, American International University-Bangladesh (AIUB): Md. Tanbin Islam (leader) and Md. Rifat Ul Islam.
 
 ## The problem
 

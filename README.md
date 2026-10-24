@@ -6,6 +6,7 @@ Built for the **2026 Shenzhen International FinTech Competition (FinTechathon), 
 > **Competition prototype. Sandbox only. No real loan, payment, or lender submission.**
 
 - **Live site (guided sandbox):** https://tanbin-cs.github.io/Farmlink-AI/
+- **Explainer video (1 min 51 s):** https://youtu.be/In0M4g6hLow
 - **Live AI API:** https://farmlink-api-kfvi.onrender.com/v1/health (Render; see [Deployment](docs/DEPLOYMENT.md))
 - **Technical document:** [docs/submission/](docs/submission/) (official template, DOCX and PDF)
 

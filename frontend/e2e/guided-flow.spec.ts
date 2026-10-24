@@ -142,3 +142,11 @@ test('the page keeps scrolling with the mouse wheel after dialogs open and close
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
   await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains('lenis-stopped'))).toBe(false);
 });
+
+test('landing page embeds the explainer video only after the visitor presses play', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.getByRole('heading', { name: 'FarmLink AI in under two minutes' })).toBeVisible();
+  await expect(page.locator('iframe')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Play the FarmLink AI explainer video' }).click();
+  await expect(page.locator('iframe[title="FarmLink AI explainer video"]')).toHaveAttribute('src', /^https:\/\/www\.youtube-nocookie\.com\/embed\/In0M4g6hLow/);
+});

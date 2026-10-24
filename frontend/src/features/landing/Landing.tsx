@@ -29,6 +29,7 @@ import { Brand } from '@/app/AppShell';
 import { cn } from '@/lib/utils';
 import { Reveal, motion } from '@/components/motion';
 import { useScrollTo } from '@/app/SmoothScroll';
+import { ExplainerVideo } from './ExplainerVideo';
 
 const STEPS = [
   { icon: ListChecks, title: 'Add your records', text: 'Planned sales, input purchases, wages, transport. Type them in or import a CSV.' },
@@ -71,6 +72,9 @@ export function Landing() {
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
         <Brand />
         <nav className="flex items-center gap-1 text-sm">
+          <button onClick={() => scrollTo('video')} className="rounded-lg px-3 py-2 text-stone-700 hover:bg-white/60">
+            Watch video
+          </button>
           <button onClick={() => scrollTo('how')} className="hidden rounded-lg px-3 py-2 text-stone-700 hover:bg-white/60 sm:block">
             How it works
           </button>
@@ -182,6 +186,8 @@ export function Landing() {
           </div>
         </motion.div>
       </section>
+
+      <ExplainerVideo />
 
       <section id="how" className="border-y border-stone-200/80 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-16">

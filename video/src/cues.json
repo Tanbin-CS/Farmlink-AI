@@ -1,0 +1,287 @@
+{
+ "duration": 104.71,
+ "cues": [
+  {
+   "scene": 0,
+   "text": "Every season, farming cooperatives in Bangladesh",
+   "start": 0.08,
+   "end": 2.9
+  },
+  {
+   "scene": 0,
+   "text": "pay for seed, fertilizer and labour",
+   "start": 2.9,
+   "end": 5.24
+  },
+  {
+   "scene": 0,
+   "text": "weeks before the harvest brings money in.",
+   "start": 5.24,
+   "end": 7.06
+  },
+  {
+   "scene": 0,
+   "text": "That gap is predictable,",
+   "start": 8.02,
+   "end": 9.27
+  },
+  {
+   "scene": 0,
+   "text": "but almost nobody measures it.",
+   "start": 9.48,
+   "end": 11.57
+  },
+  {
+   "scene": 1,
+   "text": "So cooperatives borrow by headline interest rate,",
+   "start": 11.57,
+   "end": 14.19
+  },
+  {
+   "scene": 1,
+   "text": "not by when the money arrives",
+   "start": 14.19,
+   "end": 15.72
+  },
+  {
+   "scene": 1,
+   "text": "or when it must be repaid.",
+   "start": 15.72,
+   "end": 17.27
+  },
+  {
+   "scene": 1,
+   "text": "And an AI that can move money or invent numbers",
+   "start": 17.27,
+   "end": 20.41
+  },
+  {
+   "scene": 1,
+   "text": "would make things worse, not better.",
+   "start": 20.41,
+   "end": 22.06
+  },
+  {
+   "scene": 2,
+   "text": "FarmLink AI is a finance copilot for cooperatives.",
+   "start": 22.06,
+   "end": 25.96
+  },
+  {
+   "scene": 2,
+   "text": "It turns their records into a forecast,",
+   "start": 25.96,
+   "end": 27.95
+  },
+  {
+   "scene": 2,
+   "text": "compares financing honestly,",
+   "start": 27.95,
+   "end": 29.64
+  },
+  {
+   "scene": 2,
+   "text": "and prepares an application.",
+   "start": 30.01,
+   "end": 31.16
+  },
+  {
+   "scene": 2,
+   "text": "But only a human can submit it.",
+   "start": 31.53,
+   "end": 33.0
+  },
+  {
+   "scene": 3,
+   "text": "Here is our demo cooperative.",
+   "start": 33.0,
+   "end": 35.55
+  },
+  {
+   "scene": 3,
+   "text": "FarmLink projects cash day by day",
+   "start": 35.55,
+   "end": 37.83
+  },
+  {
+   "scene": 3,
+   "text": "and finds the exact moment it runs out:",
+   "start": 37.91,
+   "end": 39.98
+  },
+  {
+   "scene": 3,
+   "text": "in seven days, on the 27th of October.",
+   "start": 40.38,
+   "end": 42.9
+  },
+  {
+   "scene": 3,
+   "text": "The gap is 425,000 taka.",
+   "start": 43.43,
+   "end": 46.5
+  },
+  {
+   "scene": 4,
+   "text": "Then it checks eight financing options",
+   "start": 46.5,
+   "end": 48.39
+  },
+  {
+   "scene": 4,
+   "text": "against that exact gap.",
+   "start": 48.4,
+   "end": 50.23
+  },
+  {
+   "scene": 4,
+   "text": "Does the money arrive in time?",
+   "start": 50.23,
+   "end": 51.33
+  },
+  {
+   "scene": 4,
+   "text": "Can it be repaid from this season's cash?",
+   "start": 51.69,
+   "end": 54.05
+  },
+  {
+   "scene": 4,
+   "text": "Two options fit.",
+   "start": 54.05,
+   "end": 55.33
+  },
+  {
+   "scene": 4,
+   "text": "Every other one gets a clear reason why not.",
+   "start": 55.33,
+   "end": 57.6
+  },
+  {
+   "scene": 5,
+   "text": "But cheapest is not always safest.",
+   "start": 57.6,
+   "end": 59.8
+  },
+  {
+   "scene": 5,
+   "text": "FarmLink replays the season with a late harvest,",
+   "start": 59.8,
+   "end": 62.58
+  },
+  {
+   "scene": 5,
+   "text": "lower sales and higher costs.",
+   "start": 62.58,
+   "end": 64.61
+  },
+  {
+   "scene": 5,
+   "text": "Borrowing only the gap fails every test.",
+   "start": 65.11,
+   "end": 67.27
+  },
+  {
+   "scene": 5,
+   "text": "Add a small buffer,",
+   "start": 67.27,
+   "end": 68.81
+  },
+  {
+   "scene": 5,
+   "text": "and the best option survives",
+   "start": 68.81,
+   "end": 70.14
+  },
+  {
+   "scene": 5,
+   "text": "a late harvest and a sales drop.",
+   "start": 70.14,
+   "end": 71.83
+  },
+  {
+   "scene": 6,
+   "text": "With live AI, you can simply ask.",
+   "start": 72.38,
+   "end": 74.4
+  },
+  {
+   "scene": 6,
+   "text": "The Gemini-powered agent plans the steps",
+   "start": 74.89,
+   "end": 76.94
+  },
+  {
+   "scene": 6,
+   "text": "and calls our tools,",
+   "start": 76.95,
+   "end": 78.05
+  },
+  {
+   "scene": 6,
+   "text": "and every number comes from tested code,",
+   "start": 78.34,
+   "end": 80.45
+  },
+  {
+   "scene": 6,
+   "text": "never from the AI's guess.",
+   "start": 80.45,
+   "end": 82.06
+  },
+  {
+   "scene": 6,
+   "text": "When the application is ready, it stops.",
+   "start": 82.49,
+   "end": 84.6
+  },
+  {
+   "scene": 7,
+   "text": "Only a person can confirm the exact terms.",
+   "start": 84.6,
+   "end": 87.74
+  },
+  {
+   "scene": 7,
+   "text": "If anything changes after review,",
+   "start": 87.74,
+   "end": 89.38
+  },
+  {
+   "scene": 7,
+   "text": "the confirmation is cancelled.",
+   "start": 89.38,
+   "end": 91.06
+  },
+  {
+   "scene": 7,
+   "text": "No real money moves.",
+   "start": 91.06,
+   "end": 92.24
+  },
+  {
+   "scene": 7,
+   "text": "Every step is logged as evidence.",
+   "start": 92.42,
+   "end": 94.6
+  },
+  {
+   "scene": 8,
+   "text": "FarmLink AI.",
+   "start": 94.6,
+   "end": 95.9
+  },
+  {
+   "scene": 8,
+   "text": "The AI prepares, the cooperative decides.",
+   "start": 96.3,
+   "end": 99.19
+  },
+  {
+   "scene": 8,
+   "text": "Try it today at tanbin-cs.github.io/Farmlink-AI",
+   "start": 99.19,
+   "end": 104.71
+  }
+ ]
+}

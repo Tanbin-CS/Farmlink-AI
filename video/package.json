@@ -1,0 +1,23 @@
+{
+  "name": "farmlink-explainer-video",
+  "private": true,
+  "version": "1.0.0",
+  "description": "FarmLink AI motion explainer video, built with Remotion",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "stills": "node scripts/stills.mjs",
+    "render": "node scripts/render.mjs",
+    "export-cashflow": "tsx scripts/export-cashflow.ts src/cashflow.json"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.538",
+    "lucide-react": "^1.61.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.538"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "5.9"
+  }
+}

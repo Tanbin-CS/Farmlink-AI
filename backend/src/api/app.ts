@@ -116,7 +116,7 @@ export function createApp({ config, store, provider, now = () => new Date() }: A
   v1.get('/workspace', h(async (req) => svc.snapshot(req.session!.id)));
   v1.put('/workspace', h(async (req) => svc.saveWorkspace(ctx(req), z.object({ workspace: z.unknown() }).parse(req.body).workspace)));
   v1.post('/workspace/import', h(async (req) => svc.importBundle(ctx(req), z.object({ bundle: z.unknown() }).parse(req.body).bundle)));
-  v1.post('/demo', h(async (req) => svc.loadDemo(ctx(req), z.object({ currency: z.enum(['BDT', 'USD', 'EUR']).default('BDT') }).parse(req.body ?? {}).currency)));
+  v1.post('/demo', h(async (req) => svc.loadDemo(ctx(req), z.object({ currency: z.enum(['BDT', 'USD', 'EUR', 'CNY']).default('BDT') }).parse(req.body ?? {}).currency)));
   v1.put('/records/:id', h(async (req) => svc.upsertEvent(ctx(req), String(req.params.id), z.object({ event: z.object({}).passthrough() }).parse(req.body).event)));
   v1.delete('/records/:id', h(async (req) => svc.deleteEvent(ctx(req), String(req.params.id))));
   v1.post('/records/import', h(async (req) => svc.importEvents(ctx(req), z.object({ events: z.unknown() }).parse(req.body).events)));

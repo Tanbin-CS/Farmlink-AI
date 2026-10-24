@@ -18,7 +18,7 @@ import {
   Sprout,
   SlidersHorizontal,
 } from 'lucide-react';
-import type { CurrencyCode } from '@farmlink/engine';
+import { CURRENCIES, type CurrencyCode } from '@farmlink/engine';
 import { useSandbox } from '@/state/SandboxProvider';
 import { usePreferences } from '@/state/PreferencesProvider';
 import { pauseSmoothScroll } from './SmoothScroll';
@@ -125,7 +125,7 @@ export function CommandPalette() {
                 </Item>
               </Command.Group>
               <Command.Group heading="Actions" className="mt-1 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-stone-400">
-                {(['BDT', 'USD', 'EUR'] as CurrencyCode[]).map((c) => (
+                {CURRENCIES.map((c) => (
                   <Item key={c} icon={Sprout} onSelect={() => void demo(c)}>
                     Load fictional demo in {c}
                   </Item>
@@ -143,7 +143,7 @@ export function CommandPalette() {
                 <Item icon={Bot} onSelect={() => (setOpen(false), update({ copilotOpen: !prefs.copilotOpen }))}>
                   {prefs.copilotOpen ? 'Hide' : 'Show'} copilot panel
                 </Item>
-                {(['USD', 'EUR', 'none'] as const).map((c) => (
+                {(['USD', 'EUR', 'CNY', 'none'] as const).map((c) => (
                   <Item key={c} icon={Coins} onSelect={() => (setOpen(false), update({ displayCurrency: c }))}>
                     {c === 'none' ? 'Hide approximate equivalents' : `Show approximate ${c} equivalents`}
                   </Item>

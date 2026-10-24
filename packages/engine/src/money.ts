@@ -47,7 +47,7 @@ export function divRoundHalfUp(numerator: bigint, denominator: bigint): bigint {
  * Rejects more than two decimals, exponents, and anything outside the supported range.
  */
 export function parseMajor(input: string, opts: { allowNegative?: boolean } = {}): MoneyMinor {
-  const cleaned = input.trim().replace(/,/g, '').replace(/^(BDT|USD|EUR|৳|\$|€)\s*/i, '');
+  const cleaned = input.trim().replace(/,/g, '').replace(/^(BDT|USD|EUR|CNY|RMB|৳|\$|€|¥)\s*/i, '');
   const m = /^(-)?(\d{1,15})(?:\.(\d{1,2}))?$/.exec(cleaned);
   if (!m) throw new MoneyError('Enter an amount like 12500 or 12500.50 (max two decimals)');
   const [, sign, whole, frac = ''] = m;
@@ -56,8 +56,9 @@ export function parseMajor(input: string, opts: { allowNegative?: boolean } = {}
   return fromBig(sign ? -minor : minor);
 }
 
-export type CurrencyCode = 'BDT' | 'USD' | 'EUR';
-export const CURRENCIES: readonly CurrencyCode[] = ['BDT', 'USD', 'EUR'] as const;
+export type CurrencyCode = 'BDT' | 'USD' | 'EUR' | 'CNY';
+export const CURRENCIES: readonly CurrencyCode[] = ['BDT', 'USD', 'EUR', 'CNY'] as const;
+export const CURRENCY_NAMES: Record<CurrencyCode, string> = { BDT: 'Bangladeshi taka', USD: 'US dollar', EUR: 'euro', CNY: 'Chinese yuan' };
 export type DigitGrouping = 'international' | 'south_asian';
 
 /** Group digits in the South Asian lakh/crore style: 12,34,56,789. */

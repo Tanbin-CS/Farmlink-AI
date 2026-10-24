@@ -9,7 +9,7 @@ export function DisplayCurrencySelect({ className }: { className?: string }) {
   const { prefs, update } = usePreferences();
   const { snapshot } = useSandbox();
   const base = snapshot?.workspace?.currency ?? 'BDT';
-  const options = (['USD', 'EUR', 'BDT'] as CurrencyCode[]).filter((c) => c !== base);
+  const options = (['USD', 'EUR', 'CNY', 'BDT'] as CurrencyCode[]).filter((c) => c !== base);
   return (
     <label className={cn('flex items-center gap-1.5 text-xs text-stone-600', className)} title="Approximate equivalents at your reference rates (display only)">
       <Coins className="size-4 text-stone-400" aria-hidden />

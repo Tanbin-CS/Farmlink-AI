@@ -25,7 +25,7 @@ Cooperatives buy seed, fertilizer, and labour weeks before harvest receipts arri
 
 ### International by design
 
-- Workspaces can be in **BDT, USD, or EUR**. A fictional demo is available in each currency.
+- Workspaces can be in **BDT, USD, EUR, or CNY (Chinese yuan)**. A fictional demo is available in each currency.
 - Products in another currency are never compared silently; they get a `CURRENCY_MISMATCH` reason instead.
 - Every amount can also show an **approximate equivalent** in another currency, at an editable reference rate. The default is the Bangladesh Bank USD/BDT reference rate for 19 Oct 2026. This is for display only and never feeds a calculation.
 - Numbers use international grouping (1,234,567) by default, with lakh grouping (12,34,567) as an option.

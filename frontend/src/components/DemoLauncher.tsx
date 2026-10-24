@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play } from 'lucide-react';
-import type { CurrencyCode } from '@farmlink/engine';
+import { CURRENCIES, type CurrencyCode } from '@farmlink/engine';
 import { Button } from '@/components/ui/button';
 import { useSandbox } from '@/state/SandboxProvider';
 import { cn } from '@/lib/utils';
@@ -21,7 +21,7 @@ export function DemoLauncher({ size = 'default', navigateTo, className, label = 
         <Play aria-hidden /> {label}
       </Button>
       <div role="radiogroup" aria-label="Demo currency" className="inline-flex rounded-lg bg-stone-100 p-0.5 text-xs font-semibold">
-        {(['BDT', 'USD', 'EUR'] as CurrencyCode[]).map((c) => (
+        {CURRENCIES.map((c) => (
           <button
             key={c}
             role="radio"

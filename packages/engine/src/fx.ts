@@ -7,10 +7,13 @@ import { toBig, type CurrencyCode, type MoneyMinor } from './money';
  */
 export type ReferenceRates = Record<Exclude<CurrencyCode, 'BDT'>, string>;
 
-/** Bangladesh Bank USD/BDT reference rate, 19 Oct 2026 (05:00 PM). EUR derived via EUR/USD ≈ 1.1221. Editable. */
-export const DEFAULT_REFERENCE_RATES: ReferenceRates = { USD: '123.7054', EUR: '138.8098' };
+/**
+ * Bangladesh Bank USD/BDT reference rate, 19 Oct 2026 (05:00 PM). EUR derived via EUR/USD ≈ 1.1221;
+ * CNY derived via USD/CNY 6.6861 (US Federal Reserve H.10, 16 Oct 2026). Editable.
+ */
+export const DEFAULT_REFERENCE_RATES: ReferenceRates = { USD: '123.7054', EUR: '138.8098', CNY: '18.5019' };
 export const DEFAULT_RATES_NOTE =
-  'Default USD rate: Bangladesh Bank reference rate, 19 Oct 2026 (123.7054 BDT). EUR derived with EUR/USD ≈ 1.1221. Display only, not live market data.';
+  'Default USD rate: Bangladesh Bank reference rate, 19 Oct 2026 (123.7054 BDT). EUR derived with EUR/USD ≈ 1.1221; CNY derived with USD/CNY 6.6861 (US Federal Reserve H.10, 16 Oct 2026). Display only, not live market data.';
 
 const RATE_RE = /^\d{1,6}(\.\d{1,4})?$/;
 

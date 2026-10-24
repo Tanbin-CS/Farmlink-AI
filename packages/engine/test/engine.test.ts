@@ -265,7 +265,7 @@ describe('currencies and display conversion', () => {
     expect(convertMinor('42500000', 'BDT', 'USD', DEFAULT_REFERENCE_RATES)).toBe('343558');
     expect(convertMinor('343558', 'USD', 'BDT', DEFAULT_REFERENCE_RATES)).toBe('42499980');
     expect(convertMinor('-100', 'BDT', 'BDT', DEFAULT_REFERENCE_RATES)).toBe('-100');
-    expect(() => convertMinor('1', 'BDT', 'USD', { USD: 'abc', EUR: '1' })).toThrow();
+    expect(() => convertMinor('1', 'BDT', 'USD', { USD: 'abc', EUR: '1', CNY: '1' })).toThrow();
   });
 
   it('never compares products across currencies', () => {
@@ -274,7 +274,18 @@ describe('currencies and display conversion', () => {
     expect(cmp.evaluations.every((e) => e.reasons.includes('CURRENCY_MISMATCH'))).toBe(true);
   });
 
-  it.each(['USD', 'EUR'] as const)('the %s demo variant tells the same story', (cur) => {
+  it('supports Chinese yuan: parsing, formatting, display conversion, and the demo gap', () => {
+    expect(parseMajor('¥ 1,250.50')).toBe('125050');
+    expect(parseMajor('CNY 30')).toBe('3000');
+    expect(formatMoney('2125000', 'CNY')).toBe('CNY 21,250.00');
+    expect(convertMinor('42500000', 'BDT', 'CNY', DEFAULT_REFERENCE_RATES)).toBe('2297061');
+    expect(convertMinor('100000', 'CNY', 'BDT', DEFAULT_REFERENCE_RATES)).toBe('1850190');
+    const cf = projectCashflow(demoWorkspace(AS_OF, 'ws', 'CNY'), demoEvents(AS_OF, 'CNY'));
+    expect(cf.fundingGapMinor).toBe('2125000');
+    expect(cf.earliestNegativeDate).toBe(addDays(AS_OF, 7));
+  });
+
+  it.each(['USD', 'EUR', 'CNY'] as const)('the %s demo variant tells the same story', (cur) => {
     const cmp = compareFinancing(demoWorkspace(AS_OF, 'ws', cur), demoEvents(AS_OF, cur), demoCatalog(cur), 1);
     const byId = Object.fromEntries(cmp.evaluations.map((e) => [e.productId, e]));
     expect(cmp.bestFitProductId).toBe('sbx-seasonal-a');

@@ -5,6 +5,7 @@ import {
   CURRENCIES,
   DEFAULT_RATES_NOTE,
   DEFAULT_REFERENCE_RATES,
+  CURRENCY_NAMES,
   EVIDENCE_TYPES,
   SCHEMA_VERSION,
   TRUTH_LABELS,
@@ -138,7 +139,7 @@ export function SetupPage() {
                 <Select id="cur" className="mt-1" value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value as CurrencyCode })}>
                   {CURRENCIES.map((c) => (
                     <option key={c} value={c}>
-                      {c === 'BDT' ? 'BDT, Bangladeshi taka' : c === 'USD' ? 'USD, US dollar' : 'EUR, euro'}
+                      {c}, {CURRENCY_NAMES[c]}
                     </option>
                   ))}
                 </Select>
@@ -235,10 +236,12 @@ export function SetupPage() {
   );
 }
 
+const RATE_CURRENCIES = CURRENCIES.filter((c): c is Exclude<CurrencyCode, 'BDT'> => c !== 'BDT');
+
 function PreferencesCard() {
   const { prefs, update, resetRates } = usePreferences();
   const [draft, setDraft] = useState(prefs.rates);
-  const bad = (['USD', 'EUR'] as const).filter((c) => !isValidRate(draft[c]));
+  const bad = RATE_CURRENCIES.filter((c) => !isValidRate(draft[c]));
   return (
     <Card>
       <CardHeader>
@@ -254,6 +257,7 @@ function PreferencesCard() {
             <Select id="pref-cur" className="mt-1" value={prefs.displayCurrency} onChange={(e) => update({ displayCurrency: e.target.value as Preferences['displayCurrency'] })}>
               <option value="USD">≈ USD</option>
               <option value="EUR">≈ EUR</option>
+              <option value="CNY">≈ CNY</option>
               <option value="BDT">≈ BDT</option>
               <option value="none">Nothing</option>
             </Select>
@@ -266,8 +270,8 @@ function PreferencesCard() {
             </Select>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {(['USD', 'EUR'] as const).map((c) => (
+        <div className="grid grid-cols-3 gap-3">
+          {RATE_CURRENCIES.map((c) => (
             <div key={c}>
               <Label htmlFor={`rate-${c}`}>BDT per 1 {c}</Label>
               <Input

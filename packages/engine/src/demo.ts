@@ -12,11 +12,11 @@ export const DEMO_DISCLAIMER =
 export const DEMO_CATALOG_VERSION = 1;
 
 /**
- * The fictional scenario is authored in BDT. USD and EUR variants divide every whole-unit
+ * The fictional scenario is authored in BDT. USD, EUR and CNY variants divide every whole-unit
  * amount by a fixed round factor so the same story reads naturally for international reviewers.
  * The factors are scenario-authoring choices, not exchange rates.
  */
-const DEMO_FACTOR: Record<CurrencyCode, number> = { BDT: 1, USD: 125, EUR: 140 };
+const DEMO_FACTOR: Record<CurrencyCode, number> = { BDT: 1, USD: 125, EUR: 140, CNY: 20 };
 
 /** Whole BDT amount -> minor units of the demo currency. */
 function demoMinor(bdt: number, currency: CurrencyCode): string {

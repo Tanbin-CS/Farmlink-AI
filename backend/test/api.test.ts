@@ -236,6 +236,9 @@ describe('currencies and stress test', () => {
     expect(st.body.total).toBe(4);
     const bad = await request(app).post('/v1/analysis/stress').set(auth(t)).send({ productId: 'sbx-template-f' });
     expect(bad.status).toBe(422);
+    const cny = await request(app).post('/v1/demo').set(auth(t)).send({ currency: 'CNY' });
+    expect(cny.body.workspace.currency).toBe('CNY');
+    expect(cny.body.catalog.every((p: { currency: string }) => p.currency === 'CNY')).toBe(true);
     const weird = await request(app).post('/v1/demo').set(auth(t)).send({ currency: 'JPY' });
     expect(weird.status).toBe(422);
   });

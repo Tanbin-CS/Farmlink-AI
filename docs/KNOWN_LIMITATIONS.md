@@ -7,7 +7,7 @@
 - The funding target is zero cash (the largest cumulative shortfall). The buffer shortfall is reported but is not financed automatically.
 - If the forecast ends before a loan's maturity, the result is "Repayment assessment incomplete" rather than a pass.
 - "Fits" means the option fits the stated sandbox rules. It is not a lender approval or a creditworthiness assessment. No default probabilities, crop-yield forecasts, or price forecasts are produced.
-- Currencies are BDT, USD and EUR. Amounts are never converted inside calculations, and the "≈" equivalents use static, user-editable reference rates rather than live market data. The interface is in English; Bengali is future work.
+- Currencies are BDT, USD, EUR and CNY. Amounts are never converted inside calculations, and the "≈" equivalents use static, user-editable reference rates rather than live market data. The interface is in English; Bengali is future work.
 - Stress scenarios are fixed presets or user sliders. They are assumptions, not forecasts of harvest timing or prices.
 
 ## Product scope

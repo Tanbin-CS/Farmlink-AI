@@ -101,7 +101,7 @@ Ranking among fits uses lowest total modeled cost, then lowest repayment, then I
 
 **Currencies** (`money.ts`, `fx.ts`):
 
-- Workspace and product currencies are BDT, USD or EUR, and comparisons only ever use the same currency.
+- Workspace and product currencies are BDT, USD, EUR or CNY, and comparisons only ever use the same currency.
 - `convertMinor` converts through BDT using user-editable reference rates, scaled to 4 decimals. It is used only for "≈" display.
 
 ## Agent run (live mode)

@@ -4,7 +4,7 @@ These are the actual results of commands run on 2026-10-19/20 (UTC). The first r
 
 | Suite | Command | Result |
 | --- | --- | --- |
-| Engine unit tests | `npm test -w packages/engine` | **31 passed** (adds currencies, display FX, scenarios, stress test) |
+| Engine unit tests | `npm test -w packages/engine` | **33 passed** (adds currencies including CNY, display FX, scenarios, stress test) |
 | Frontend unit tests (guided client) | `npm test -w frontend` | **5 passed** |
 | API safety tests (in-memory store, mock model provider) | `npm test -w backend` | **27 passed**, 2 skipped (Postgres tests need `TEST_DATABASE_URL`), at commit `7b46c6f`, including the stress warning returned by `prepare_sandbox_submission` |
 | Postgres integration (real PostgreSQL 16, local) | `TEST_DATABASE_URL=… npm test -w backend` | **25 passed** (23 API + 2 Postgres) on the earlier commit `e715f2a`; the 2 new currency/stress API tests run in memory |

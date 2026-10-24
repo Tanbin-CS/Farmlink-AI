@@ -115,7 +115,7 @@ export function Landing() {
               <LockKeyhole className="size-4 text-brand-600" aria-hidden /> No sign-up, data stays in your browser
             </li>
             <li className="flex items-center gap-1.5">
-              <CheckCircle2 className="size-4 text-brand-600" aria-hidden /> Works in BDT, USD, or EUR
+              <CheckCircle2 className="size-4 text-brand-600" aria-hidden /> Works in BDT, USD, EUR, or CNY
             </li>
             <li className="flex items-center gap-1.5">
               <Bot className="size-4 text-brand-600" aria-hidden /> {liveModeConfigured ? 'Live AI agent available' : 'Guided mode, no live AI in this build'}

@@ -11,9 +11,11 @@ export function DisplayCurrencySelect({ className }: { className?: string }) {
   const base = snapshot?.workspace?.currency ?? 'BDT';
   const options = (['USD', 'EUR', 'CNY', 'BDT'] as CurrencyCode[]).filter((c) => c !== base);
   return (
-    <label className={cn('flex items-center gap-1.5 text-xs text-stone-600', className)} title="Approximate equivalents at your reference rates (display only)">
+    <label className={cn('flex items-center gap-1.5 text-xs text-stone-600', className)} title={`Your workspace amounts are in ${base}. Pick a second currency to show approximate equivalents (display only).`}>
       <Coins className="size-4 text-stone-400" aria-hidden />
-      <span className="whitespace-nowrap">Also show</span>
+      <span className="whitespace-nowrap">
+        Amounts in <strong className="font-semibold text-stone-800">{base}</strong> · also show
+      </span>
       <select
         className="h-8 rounded-lg border border-stone-200 bg-white px-2 text-xs font-medium text-stone-800 hover:border-stone-300"
         value={prefs.displayCurrency === base ? 'none' : prefs.displayCurrency}

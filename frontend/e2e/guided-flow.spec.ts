@@ -143,10 +143,30 @@ test('the page keeps scrolling with the mouse wheel after dialogs open and close
   await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains('lenis-stopped'))).toBe(false);
 });
 
-test('landing page embeds the explainer video only after the visitor presses play', async ({ page }) => {
+test('explainer video autoplays (muted until the visitor interacts) when scrolled into view', async ({ page }) => {
   await page.goto('./');
-  await expect(page.getByRole('heading', { name: 'FarmLink AI in under two minutes' })).toBeVisible();
+  await page.getByRole('heading', { name: 'FarmLink AI in under two minutes' }).scrollIntoViewIfNeeded();
+  await page.evaluate(() => document.getElementById('video')?.scrollIntoView({ block: 'center' }));
+  const player = page.locator('iframe[title="FarmLink AI explainer video"]');
+  await expect(player).toHaveAttribute('src', /^https:\/\/www\.youtube-nocookie\.com\/embed\/In0M4g6hLow\?autoplay=1&mute=[01]&/);
+  // Browsers allow sound only after the visitor has interacted; otherwise it starts muted with a one-tap sound button.
+  const startedMuted = /mute=1/.test((await player.getAttribute('src')) ?? '');
+  const sound = page.getByRole('button', { name: 'Tap for sound' });
+  if (startedMuted) {
+    await sound.click();
+    await expect(sound).toHaveCount(0);
+    await expect(player).toHaveAttribute('src', /mute=1/); // unmuted through the player API, no reload
+  } else {
+    await expect(sound).toHaveCount(0);
+  }
+});
+
+test('reduced-motion visitors get click-to-play instead of autoplay', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./');
+  await page.evaluate(() => document.getElementById('video')?.scrollIntoView({ block: 'center' }));
+  await page.waitForTimeout(600);
   await expect(page.locator('iframe')).toHaveCount(0);
   await page.getByRole('button', { name: 'Play the FarmLink AI explainer video' }).click();
-  await expect(page.locator('iframe[title="FarmLink AI explainer video"]')).toHaveAttribute('src', /^https:\/\/www\.youtube-nocookie\.com\/embed\/In0M4g6hLow/);
+  await expect(page.locator('iframe[title="FarmLink AI explainer video"]')).toHaveAttribute('src', /autoplay=1&mute=0/);
 });
